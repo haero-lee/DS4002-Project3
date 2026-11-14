@@ -15,3 +15,21 @@ The Open-Source Pre-Clinical Segmentation GitHub repository is distributed under
 ## Ethical Statements 
 
 Our project uses existing mouse cardiac MRI data and does not involve new animal experiments or human participant information. We will acknowledge the original researchers’ data collection and animal research oversight. We will report exclusions, preprocessing decisions, and model limitations transparently, and we will not present automated segmentations as substitutes for expert assessment without additional validation. 
+
+
+
+
+## Data Dictionary
+
+| Feature | Type | Description | Notes |
+| :--- | :--- | :--- | :--- |
+| Images | Float array, `256 × 256 × slices × timeframes` | Bright-field cine SAX image intensities. Each mouse has 8–11 slices and 17–36 timeframes. | Intensities are in arbitrary scanner units that vary between mice, so they must be normalized. |
+| Masks | Integer array, same shape as `Images` | Pixel labels: background (0), LV myocardium (1), LV blood pool (2). | Expert manual tracing, so boundary pixels carry inter-observer uncertainty. This matters most for the thin mouse myocardium, where a 1–2 pixel shift substantially changes Dice. |
+| Frames_with_ROI | Integer index list | Identifies which cardiac timeframes contain expert segmentation. | Unlabeled timeframes contain only zeros in `Masks`. |
+| `mouse_id` (derived) | String | Taken from the `.h5` file name. | Used for splitting only, never as a model input. |
+| `slice_idx`, `frame_idx` (derived) | Integer | Position of each extracted 2D slice. | Apical and basal slices may contain little or no LV. |
+| `split` (derived) | `train` / `val` / `test` | Mouse-level assignment (seed = 42). | Fixed before any training. |
+
+
+
+
