@@ -31,8 +31,8 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 | `split` (derived) | `train` / `val` / `test` | Mouse-level assignment (seed = 42). | Fixed before any training. |
 
 
-
 ## Exploratory PLots
+
 
 
 
