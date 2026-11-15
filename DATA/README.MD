@@ -34,6 +34,19 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 ## Exploratory Plots
 
 
+## References 
+
+[1] C. Chen et al., “Deep learning for cardiac image segmentation: A review,” Front. Cardiovasc. Med., vol. 7, Art. no. 25, 2020, doi: 10.3389/fcvm.2020.00025.
+[2] W. Shah et al., “Open-source pre-clinical image segmentation: Mouse cardiac magnetic resonance imaging datasets with a deep learning segmentation framework,” J. Cardiovasc. Magn. Reson., vol. 28, no. 1, Art. no. 102706, 2026, doi: 10.1016/j.jocmr.2026.102706.
+[3] mrphys, “Open-Source_Pre-Clinical_Segmentation,” GitHub repository. Accessed: Nov. 9, 2026. [Online]. Available: GitHub repository.
+[4] O. Ronneberger, P. Fischer, and T. Brox, “U-Net: Convolutional networks for biomedical image segmentation,” in Proc. Medical Image Computing and Computer-Assisted Intervention (MICCAI), 2015, pp. 234–241, doi: 10.1007/978-3-319-24574-4_28.
+[5] H. Huang et al., “UNet 3+: A full-scale connected UNet for medical image segmentation,” in Proc. IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP), 2020, pp. 1055–1059, doi: 10.1109/ICASSP40776.2020.9053405.
+[6] D. Fernández-Llaneza et al., “Towards fully automated segmentation of rat cardiac MRI by leveraging deep learning frameworks,” Sci. Rep., vol. 12, Art. no. 9193, 2022, doi: 10.1038/s41598-022-12378-z.
+[7] O. Bernard et al., “Deep learning techniques for automatic MRI cardiac multi-structures segmentation and diagnosis: Is the problem solved?,” IEEE Trans. Med. Imaging, vol. 37, no. 11, pp. 2514–2525, Nov. 2018, doi: 10.1109/TMI.2018.2837502.
+[8] H. Aytoda, “EDA_py.ipynb,” GitHub, 2026. [Online]. Available: https://github.com/haero-lee/DS4002-Project3/blob/main/DATA/EDA_py.ipynb. [Accessed: Nov. 11, 2026].
+[9] The HDF Group, “Introduction to HDF5,” The HDF5 Field Guide. Accessed: Nov. 9, 2026. [Online]. Available: https://support.hdfgroup.org/documentation/hdf5/latest/_intro_h_d_f5.html
+
+
 
 
 
