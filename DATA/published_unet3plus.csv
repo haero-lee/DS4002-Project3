@@ -1,0 +1,6 @@
+result_origin,model,cohort,field_strength_t,test_mice,structure,phase,dice_mean,dice_sd,doi,table_reference,source_url,post_processing
+published_not_reproduced,UNet 3+,internal_9.4T,9.4,25,blood_pool,ED,0.95,0.02,10.1016/j.jocmr.2026.102706,Table 1,https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1,Largest connected component with centroid-based tracking
+published_not_reproduced,UNet 3+,internal_9.4T,9.4,25,myocardium,ED,0.89,0.03,10.1016/j.jocmr.2026.102706,Table 1,https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1,Largest connected component with centroid-based tracking
+published_not_reproduced,UNet 3+,internal_9.4T,9.4,25,blood_pool,ES,0.93,0.03,10.1016/j.jocmr.2026.102706,Table 1,https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1,Largest connected component with centroid-based tracking
+published_not_reproduced,UNet 3+,internal_9.4T,9.4,25,myocardium,ES,0.92,0.02,10.1016/j.jocmr.2026.102706,Table 1,https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1,Largest connected component with centroid-based tracking
+published_not_reproduced,UNet 3+,internal_9.4T,9.4,25,overall,ED_and_ES,0.92,0.02,10.1016/j.jocmr.2026.102706,Table 1,https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1,Largest connected component with centroid-based tracking

@@ -28,7 +28,7 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 | Frames_with_ROI | Integer index list | Identifies which cardiac timeframes contain expert segmentation. | Unlabeled timeframes contain only zeros in `Masks`. |
 | `mouse_id` (derived) | String | Taken from the `.h5` file name. | Used for splitting only, never as a model input. |
 | `slice_idx`, `frame_idx` (derived) | Integer | Position of each extracted 2D slice. | Apical and basal slices may contain little or no LV. |
-| `split` (derived) | `train` / `val` / `test` | Mouse-level assignment (seed = 42). | Fixed before any training. |
+| `split` (derived) | `train` / `val` / `test` | Mouse-level assignment actually used for U-Net training. | The completed training split will be documented with the uploaded scripts; do not replace it after training. |
 
 
 ## Exploratory Plots
@@ -54,9 +54,10 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 
 [9] The HDF Group, “Introduction to HDF5,” The HDF5 Field Guide. Accessed: Nov. 9, 2026. [Online]. Available: https://support.hdfgroup.org/documentation/hdf5/latest/_intro_h_d_f5.html
 
+## Published benchmark results
 
+[published_unet3plus.csv](published_unet3plus.csv) contains five published mean/SD rows from the [final paper, Table 1](https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1), for the internal 9.4T cohort of 25 test mice. These summary scores were transcribed from the paper, not reproduced by this project. The CSV includes the DOI, source URL, table reference, and post-processing description.
 
+`result_origin=published_not_reproduced` distinguishes these values from future results measured by this project. Dice values are on the 0–1 scale. ED means end-diastole; ES means end-systole. The paper used a 90/15/25 split, evaluated internal test mice at ED/ES, and applied connected-component post-processing. Its overall Dice should not automatically be treated as identical to our planned mouse-level aggregation.
 
-
-
-
+Use the actual split and evaluation details from the completed U-Net training when those scripts and results are uploaded. No separate authors' split is adopted here. The comparison with the published benchmark remains descriptive.
