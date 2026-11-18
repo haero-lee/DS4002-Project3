@@ -33,6 +33,9 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 
 ## Exploratory Plots
 
+![EDA Output](OUTPUT/eda_outputs/Screenshot%202026-11-09%20at%202.41.40%20PM%20copy.png)
+
+
 
 ## References 
 
