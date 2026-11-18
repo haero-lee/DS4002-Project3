@@ -230,7 +230,7 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Dice i
 | Dice over all of a mouse's labeled slices | Dice over all slices at ED and ES, with island removal | Matches the UNet 3+ paper's evaluation, so the scores are directly comparable |
 | Limited tuning of learning rate and base filters | No tuning | The first configuration met the 0.90 target |
 | Optional Wilcoxon test against the released UNet 3+ weights | Not performed; compared against published scores instead, and added a within-model ED vs. ES Wilcoxon test | Dropped to keep the project in scope |
-| Train on Google Colab or UVA HPC | Trained on an Epstein Lab Linux GPU workstation | A lab GPU was available |
+| Train on Google Colab or UVA HPC | Trained on an Linux GPU workstation | A lab GPU was available |
 
 ### Troubleshooting
 
