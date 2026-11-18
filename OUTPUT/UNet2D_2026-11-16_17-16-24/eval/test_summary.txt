@@ -1,0 +1,10 @@
+============================================
+Test set summary (n = 25 mice), mean ± SD
+============================================
+diastolic_myocardium     0.8813 ± 0.0448
+diastolic_blood_pool     0.9460 ± 0.0209
+systolic_myocardium      0.8804 ± 0.0892
+systolic_blood_pool      0.8988 ± 0.0909
+average                  0.9016 ± 0.0488
+
+Finish line (mean Dice >= 0.90): MET
