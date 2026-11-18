@@ -35,6 +35,19 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 
 ![EDA Output](../OUTPUT/eda_outputs/data_sample.png)
 
+Figure 1. Above is a sample image of a mouse left ventricle in which the yellow section represents the blood pool mass and the red section depicts the myocardium mass. 
+
+
+![Heart Location Heatmap](../OUTPUT/eda_outputs/step3b_heart_location_heatmap.png)
+
+Figure 2. This figure shows the different places where the heart sits in each image. The frame for the images is 256 x 256. This plot helps us get an understanding of what we can expect from our dataset. 
+
+
+
+![Myocardium Plot](../OUTPUT/eda_outputs/myocardium_plot.png)
+
+Figure 3. The figure outlines the mean left ventricular myocardium area by short-axis slice index for end-diastole (blue, solid) and end-systole (orange, dashed) across 130 mice. Error bars show ±1 SD. Area peaks at mid-ventricular slices or index 4 and falls toward both ends, with large between-mouse variability at every slice.
+
 
 ## References 
 
