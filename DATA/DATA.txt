@@ -1,0 +1,137 @@
+GETTING THE DATASET
+
+Project: Spider-Sense (DS 4002, team Dataverse), comparing a 2D U-Net with the published UNet 3+ benchmark for left-ventricle segmentation in mouse cardiac MRI.
+
+This repository does NOT contain the MRI data. The dataset is about 3.5 GB, which is too large to store here, and it belongs to its original authors. This guide explains how to download it yourself in a few minutes and check that it is complete.
+
+================================================================
+1. THE DATASET AT A GLANCE
+================================================================
+
+Name:    Open-Source Pre-Clinical Segmentation: mouse cardiac MRI dataset
+Source:  https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation (folder Data/)
+Authors: Shah W, Stuckey D, Yao T, Wrobel M, Campbell R, Muthurangu V, Steeden J
+Content: Short-axis cine cardiac MRI of 130 mice with diverse phenotypes, with expert segmentations of the left ventricle
+Format:  HDF5 (.h5), one file per mouse, named Mouse<number>.h5
+Size:    3.5 GB in Data/; the full repository download is about 2.2 GB (compressed)
+
+What is inside each file (checked on the first file; the number of slices and frames differs slightly between mice, so do not hard-code it):
+
+  Images
+    Typical shape: 256 x 256 x 10 x 20
+    Type: uint16
+    Meaning: MRI intensities: height, width, short-axis slice, cardiac frame
+
+  Masks
+    Typical shape: 256 x 256 x 10 x 20
+    Type: uint8
+    Meaning: expert labels: 0 background, 1 myocardium, 2 blood pool
+
+  Frames_with_ROI
+    Typical shape: 2
+    Type: int32
+    Meaning: the frames the experts traced (0-based; on the first mouse they match the masks exactly)
+
+Only a few of the 20 frames per mouse have masks: usually two (end-diastole and end-systole), although a handful of mice have masks on many more frames.
+
+================================================================
+2. WHY THE DATA IS NOT IN THIS REPOSITORY
+================================================================
+
+- GitHub rejects any file over 100 MB and recommends keeping repositories small. The dataset is 3.5 GB in total.
+- The data is the original authors' work. Linking to the source (and citing it) keeps one authoritative copy and respects their license; see the LICENSE file in their repository.
+- Everyone downloads exactly the same version straight from the source.
+
+Data flow:
+
+  Original dataset (Shah et al. on GitHub, 130 mice, 3.5 GB)
+        |
+        |  git clone --depth 1
+        v
+  Colab or local machine (Data/*.h5, not stored in our repo)
+        |
+        |  EDA notebook
+        v
+  output/ (graphs and CSV tables)
+        |
+        |  small files only
+        v
+  Our GitHub repo (notebook, output, this guide)
+
+================================================================
+3. HOW TO DOWNLOAD IT
+================================================================
+
+Do NOT download the 130 files one by one from the website. Cloning the repository gets everything in a single step.
+
+Option A: Google Colab (what we used)
+
+Run this in a notebook cell. It takes a few minutes (the download is about 2.2 GB).
+
+    !git clone --depth 1 https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation.git
+    !du -sh Open-Source_Pre-Clinical_Segmentation/Data   # expect about 3.5G
+
+Colab deletes the files when the runtime resets, so re-run this cell at the start of each new session.
+
+Option B: your own computer
+
+You need git and roughly 6 GB of free disk space (the 3.5 GB of data plus git's compressed copy).
+
+    git clone --depth 1 https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation.git
+
+--depth 1 downloads only the latest version and skips the history. To reclaim about 2 GB afterwards, you can delete the hidden .git folder inside the clone (you will not be able to pull updates after that).
+
+Keep the data out of our repository
+
+Put the clone folder next to (not inside) our repo, or add this to our .gitignore so it can never be committed by accident:
+
+    Open-Source_Pre-Clinical_Segmentation/
+    *.h5
+
+================================================================
+4. CHECK THAT THE DOWNLOAD IS COMPLETE
+================================================================
+
+    import glob, h5py
+
+    files = sorted(glob.glob("Open-Source_Pre-Clinical_Segmentation/Data/*.h5"))
+    print(len(files), "files")            # expect 130
+
+    with h5py.File(files[0], "r") as f:
+        for name, arr in f.items():
+            print(name, arr.shape, arr.dtype)
+    # expect: Frames_with_ROI, Images and Masks (shapes as in the table above)
+
+The .h5 files cannot be opened by double-clicking (they are not images or spreadsheets). They are read in Python with the h5py package.
+
+Troubleshooting:
+
+- "0 files found": The clone has not finished or the folder is somewhere else. Check that Open-Source_Pre-Clinical_Segmentation/Data exists, then re-run the clone cell.
+- Fewer than 130 files: The clone was interrupted. Delete the folder and clone again.
+- "No space left on device": Free up disk space, or use Colab.
+- KeyError: 'images': The names are case-sensitive: use Images and Masks.
+
+================================================================
+5. REPRODUCING OUR EXACT RESULTS
+================================================================
+
+The authors' repository could be updated after we downloaded it. Our notebook saves the exact commit it used to output/run_info.txt.
+
+- Dataset version used by this project: <paste the dataset_repo_commit value from output/run_info.txt>
+- To download that exact version instead of the latest (this needs a full clone, without --depth 1):
+
+    git clone https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation.git
+    cd Open-Source_Pre-Clinical_Segmentation
+    git checkout <commit hash above>
+
+Our train/validation/test split of the 130 mice (random seed 42) is saved in output/step10_split.csv, so every notebook uses the same mice.
+
+================================================================
+6. CITATION
+================================================================
+
+Please cite the original work if you use the data:
+
+  Shah W, Stuckey D, Yao T, Wrobel M, Campbell R, Muthurangu V, Steeden J. Open-Access Mouse Cardiac MRI Dataset and Segmentation Model: A Deep Learning Approach for Preclinical Research. ISMRM-ISMRT Annual Meeting, Cape Town, May 2026 (abstract 507-04-004).
+
+Dataset and code: https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation
