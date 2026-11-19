@@ -40,7 +40,7 @@ Only a few of the 20 frames per mouse have masks: usually two (end-diastole and 
 
 - GitHub rejects any file over 100 MB and recommends keeping repositories small. The dataset is 3.5 GB in total.
 - The data is the original authors' work. Linking to the source (and citing it) keeps one authoritative copy and respects their license; see the LICENSE file in their repository.
-- Everyone downloads exactly the same version straight from the source.
+- Downloading a pinned source commit is needed to obtain exactly the same version; the latest branch can change.
 
 Data flow:
 
@@ -115,16 +115,22 @@ Troubleshooting:
 5. REPRODUCING OUR EXACT RESULTS
 ================================================================
 
-The authors' repository could be updated after we downloaded it. Our notebook saves the exact commit it used to output/run_info.txt.
+The authors' repository could be updated after we downloaded it. The EDA notebook writes its source commit to output/run_info.txt when run. That file is not currently included here, and an EDA source commit does not independently identify the data version used for training.
 
-- Dataset version used by this project: <paste the dataset_repo_commit value from output/run_info.txt>
+- Dataset version used for the reported training run: not recorded in the uploaded config; confirm it from the original data checkout before claiming exact reproduction.
 - To download that exact version instead of the latest (this needs a full clone, without --depth 1):
 
     git clone https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation.git
     cd Open-Source_Pre-Clinical_Segmentation
     git checkout <commit hash above>
 
-Our train/validation/test split of the 130 mice (random seed 42) is saved in output/step10_split.csv, so every notebook uses the same mice.
+The reported model's actual train/validation/test split is saved in OUTPUT/UNet2D_2026-11-16_17-16-24/split.json (90/15/25 mice, seed 42). Use that saved split for reproducing the trained model's results. The EDA notebook's step10 split is an earlier exploratory split and must not replace the training split.
+
+To regenerate the comparison from the already uploaded test scores, run from the repository root:
+
+    python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
+
+This comparison does not require downloading MRI data. Matplotlib is needed for its two figures; add --no-figures for CSV/text outputs using only Python's standard library.
 
 ================================================================
 6. CITATION
@@ -132,6 +138,8 @@ Our train/validation/test split of the 130 mice (random seed 42) is saved in out
 
 Please cite the original work if you use the data:
 
-  Shah W, Stuckey D, Yao T, Wrobel M, Campbell R, Muthurangu V, Steeden J. Open-Access Mouse Cardiac MRI Dataset and Segmentation Model: A Deep Learning Approach for Preclinical Research. ISMRM-ISMRT Annual Meeting, Cape Town, May 2026 (abstract 507-04-004).
+  W. Shah et al., "Open-source pre-clinical image segmentation: mouse cardiac magnetic resonance imaging datasets with a deep learning segmentation framework," J. Cardiovasc. Magn. Reson., vol. 28, no. 1, Art. no. 102706, 2026, doi: 10.1016/j.jocmr.2026.102706.
+
+Final paper and published benchmark (Table 1): https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/
 
 Dataset and code: https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation

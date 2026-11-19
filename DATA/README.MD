@@ -28,7 +28,7 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 | Frames_with_ROI | Integer index list | Identifies which cardiac timeframes contain expert segmentation. | Unlabeled timeframes contain only zeros in `Masks`. |
 | `mouse_id` (derived) | String | Taken from the `.h5` file name. | Used for splitting only, never as a model input. |
 | `slice_idx`, `frame_idx` (derived) | Integer | Position of each extracted 2D slice. | Apical and basal slices may contain little or no LV. |
-| `split` (derived) | `train` / `val` / `test` | Mouse-level assignment actually used for U-Net training. | The completed training split will be documented with the uploaded scripts; do not replace it after training. |
+| `split` (derived) | `train` / `val` / `test` | Mouse-level assignment actually used for U-Net training. | Saved in `OUTPUT/UNet2D_2026-11-16_17-16-24/split.json`; 90 train / 15 validation / 25 test mice; do not replace it after training. |
 
 
 ## Exploratory Plots
@@ -75,4 +75,4 @@ Figure 3. The figure outlines the mean left ventricular myocardium area by short
 
 `result_origin=published_not_reproduced` distinguishes these values from future results measured by this project. Dice values are on the 0–1 scale. ED means end-diastole; ES means end-systole. The paper used a 90/15/25 split, evaluated internal test mice at ED/ES, and applied connected-component post-processing. Its overall Dice should not automatically be treated as identical to our planned mouse-level aggregation.
 
-Use the actual split and evaluation details from the completed U-Net training when those scripts and results are uploaded. No separate authors' split is adopted here. The comparison with the published benchmark remains descriptive.
+The completed run uses the split saved in `../OUTPUT/UNet2D_2026-11-16_17-16-24/split.json`. Measured per-mouse scores are in that run’s `eval/test_dice_per_mouse.csv`; the generated comparison and limitations are in `analysis/`. Run `python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24` from the repository root to regenerate the comparison. This re-aggregates existing scores rather than recomputing Dice from masks. It averages four class/phase scores per mouse (ED/ES × myocardium/blood pool), then gives all 25 mice equal weight. See the top-level README for protocol limitations; the comparison remains descriptive.

@@ -2,7 +2,7 @@
 
 This project trains a standard 2D U-Net to segment the left ventricular (LV) myocardium and blood pool in mouse cardiac MRI, then compares its Dice scores with the published UNet 3+ results [1]. Our target was a mean Dice of at least 0.90 on 25 held-out test mice.
 
-**Result:** the 2D U-Net reached a mean test Dice of **0.902 ± 0.049**, meeting the 0.90 target. It matched the UNet 3+ at end-diastole but scored lower at end-systole, especially for the myocardium. We did not retrain the UNet 3+. Its scores are taken from the published paper.
+**Result:** the 2D U-Net reached a mean test Dice of **0.902 ± 0.049**, meeting the 0.90 target. Its mean Dice was slightly below the published benchmark at end-diastole and further below it at end-systole, especially for the myocardium. This is a descriptive comparison, not a test of model equivalence. We did not retrain the UNet 3+. Its scores are taken from the published paper.
 
 ## Section 1: Software and Platform
 
@@ -36,33 +36,43 @@ pip install "tensorflow[and-cuda]" h5py numpy albumentations opencv-python sciki
 
 ```text
 DS4002-Project3/
-├── README.md                        Project overview and reproduction instructions (this file)
-├── LICENSE                          Project license
+├── README.md
+├── LICENSE
 ├── DATA/
-│   ├── README.MD                    Data provenance, license, data dictionary, and explanatory plots
-│   ├── published_unet3plus.csv      Published UNet 3+ benchmark scores with citations
-│   └── split_90_15_25.json          Mice assigned to the training, validation, and test sets
+│   ├── README.MD                         Data provenance and dictionary
+│   ├── DATA.txt                          Dataset acquisition guide
+│   └── published_unet3plus.csv           Published Table 1 benchmark
 ├── SCRIPTS/
-│   ├── EDA_py.ipynb                 Exploratory data analysis
-│   ├── train_unet2d.py              Main script: loads data, trains the 2D U-Net, evaluates on test mice
-│   ├── unet2d_utils.py              2D U-Net model, loss function, metrics, and mouse-level data split
-│   └── utility.py                   Data loading, augmentation, and Dice evaluation from the UNet 3+ authors (GPL-3.0) [2]
+│   ├── EDA_py_documented.ipynb           Exploratory data analysis
+│   ├── train_unet2d.py                   Training and mask-level evaluation
+│   ├── unet2d_utils.py                   Model, training metrics, and split
+│   ├── utility.py                        Data loading and ED/ES evaluation
+│   └── analyze_results.py               Comparison from saved per-mouse scores
 └── OUTPUT/
-    ├── test_summary.txt             Mean ± SD test Dice and whether the 0.90 target was met
-    ├── test_dice_per_mouse.csv      Dice scores for each of the 25 test mice
-    ├── training_log.csv             Loss and Dice for every training epoch
-    ├── loss_plot.png                Training and validation loss curves
-    ├── dice_combined.png            Training and validation Dice curves
-    └── config.json                  Training settings used for the reported run
+    ├── eda_outputs/                      Exploratory figures and tables
+    ├── step9_area_histograms.png
+    ├── step9_areas.csv
+    └── UNet2D_2026-11-16_17-16-24/
+        ├── config.json, split.json       Actual run settings and assignments
+        ├── training_log.csv, history.json
+        ├── best_model.keras, final_model.keras
+        ├── loss_plot.png, dice_combined.png
+        ├── eval/
+        │   ├── test_dice_per_mouse.csv   Original measured scores
+        │   └── test_summary.txt          Original training summary
+        └── analysis/
+            ├── comparison_table.csv     Measured vs published scores and gaps
+            ├── analysis_summary.txt     Recomputed statistics and limitations
+            ├── analysis_manifest.json   Input/checkpoint hashes and environment
+            ├── fig_unet2d_results.png    Measured Dice means and SDs
+            └── fig_dice_comparison.png   Measured vs published scores and gaps
 ```
 
-**Not included in this repository:**
-- **The MRI dataset (about 5 GB)** is too large for GitHub. Section 3, Step 2 explains how to download it.
-- **The trained model weights (`best_model.keras`)** are also too large for GitHub. Running the steps in Section 3 regenerates them.
+The MRI dataset is not included. Both uploaded `.keras` model files are present in the run folder. The comparison step produces a CSV, written explanation, and two figures from saved scores and metadata; it does not need TensorFlow, a GPU, or another MRI download.
 
 ## Section 3: Instructions for Reproducing Our Results
 
-These steps reproduce our full analysis pipeline, from downloading the data to the final figures. Every command is run in a terminal.
+To compare the existing results, go directly to Step 7; do not retrain or download the MRI data. Steps 1–6 describe training reproduction. Every command is run in a terminal.
 
 | Pipeline stage | Where it happens |
 |---|---|
@@ -83,7 +93,7 @@ These steps reproduce our full analysis pipeline, from downloading the data to t
 ### Step 1: Clone this repository
 
 ```bash
-git clone https://github.com/<your-username>/DS4002-Project3.git
+git clone https://github.com/haero-lee/DS4002-Project3.git
 cd DS4002-Project3
 ```
 
@@ -141,7 +151,7 @@ tail -f train_unet2d.log
 This one command runs pipeline stages 1–5:
 
 1. **Data extraction:** loads `Images`, `Masks`, and `Frames_with_ROI` from each mouse's `.h5` file. Only labeled timeframes are kept, and each is split into 2D 256 × 256 slices tagged with mouse ID, slice, and frame. Unlabeled frames are excluded, not imputed. Each mouse's end-diastolic (ED) frame is its first labeled frame, and its end-systolic (ES) frame is the labeled frame with the smallest blood pool.
-2. **Data splitting:** whole mice (not slices) are split 90 / 15 / 25 into training / validation / test with seed 42. This is the same split used for the published UNet 3+ [1], [2], so both models are tested on the same 25 mice. Splitting by mouse prevents leakage between sets. The split is saved as `split.json`, and the test mice are not used until final evaluation.
+2. **Data splitting:** whole mice (not slices) are split 90 / 15 / 25 into training / validation / test with seed 42. This matches the authors’ released notebook assignments [2]. Identity with the final paper’s training partition is not independently confirmed; the paper and released notebook have different labeled-image counts. Splitting by mouse prevents leakage between sets. The split is saved as `split.json`, and the test mice are not used until final evaluation.
 3. **Preprocessing:** each slice is min–max scaled to [0, 1] and kept at 256 × 256. Masks are one-hot encoded into 3 channels (background, myocardium, blood pool). Training slices only are augmented with random horizontal and vertical flips, rotation (±15°), and brightness/contrast changes (±10%).
 4. **Model training:**
 
@@ -153,7 +163,7 @@ This one command runs pipeline stages 1–5:
    | Batch size | 16 |
    | Epochs | Up to 300; stops early after 10 epochs without improvement in validation Dice; the best checkpoint is kept |
 
-5. **Evaluation:** the best model predicts every slice of each test mouse's full cine, assigning each pixel its most likely class. Small stray blobs are then removed (island removal), as in the UNet 3+ paper. For each mouse, Dice is computed over the whole stack of slices at ED and at ES, separately for the myocardium and blood pool. The overall score is the mean of these four values. Results are reported as mean ± SD across the 25 test mice.
+5. **Evaluation:** the best model predicts every slice of each test mouse's full cine, assigning each pixel its most likely class. Small stray blobs are then removed (island removal), using the released utility code. Exact equivalence with the paper’s post-processing is not established. For each mouse, Dice is computed over the whole stack of slices at ED and at ES, separately for the myocardium and blood pool. The overall score is the mean of these four values. Results are reported as mean ± SD across the 25 test mice.
 
 Training is finished when the log ends with `Done. Outputs saved in: ../OUTPUT/UNet2D_<date>_<time>`.
 
@@ -174,34 +184,36 @@ The training outputs are in a new folder, `OUTPUT/UNet2D_<date>_<time>/`:
 cat ../OUTPUT/UNet2D_<date>_<time>/eval/test_summary.txt
 ```
 
-### Step 7: Analyze the results and compare with UNet 3+
+### Step 7: Compare the saved results with UNet 3+
 
-From inside `SCRIPTS`, replacing `<date>_<time>` with your run folder's name:
+From the repository root:
 
 ```bash
-python analyze_results.py --run_dir ../OUTPUT/UNet2D_<date>_<time> --overlays --gpu 0
+python -m pip install matplotlib
+python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
 ```
 
-This runs pipeline stages 5 and 6. It:
-- computes summary statistics (mean, SD, median, range) and the number of mice that reached Dice ≥ 0.90
-- identifies the best, median, and worst test mice, and repeats the summary without the lowest-scoring mouse as a sensitivity check
-- tests whether Dice differs between ED and ES for each structure, using a paired, two-sided Wilcoxon signed-rank test (α = 0.05)
-- compares our results with the published UNet 3+ scores [1] (also in [DATA/published_unet3plus.csv](DATA/published_unet3plus.csv))
-- with `--overlays`, saves images of the model's segmentation next to the expert segmentation at ED and ES for the best, median, and worst mice
+Or, from inside `SCRIPTS`, use `--run_dir ../OUTPUT/UNet2D_2026-11-16_17-16-24`.
 
-| Output (in `OUTPUT/`) | Contents |
-|---|---|
-| `analysis_summary.txt` | All statistics in plain text |
-| `comparison_table.csv` | 2D U-Net vs. UNet 3+, by metric |
-| `fig_dice_comparison.png` | Mean ± SD Dice for both models |
-| `fig_dice_per_mouse.png` | Dice for every test mouse |
-| `overlays/` | Predicted vs. expert segmentations for the best, median, and worst mice |
+This script reads the original score CSV, split, config, and published benchmark. It checks unique test mice, split overlap, complete finite scores, consistency of each mouse's four-score average, and agreement with the original test summary. It recomputes means and sample SDs across equally weighted mice, then writes the comparison CSV, written summary, two figures, and input/checkpoint SHA-256 manifest into the run's `analysis/` folder. The original model, split, and evaluation files remain unchanged. The two figures require Matplotlib. Add `--no-figures` to regenerate only the CSV, summary, and manifest with the Python standard library. See the manifest for the recorded Python version and input hashes.
 
-Without `--overlays`, this step needs only the per-mouse CSV, not the model or data, and takes a few seconds on any computer.
+The CSV's difference is **our mean minus the published mean**, in Dice units. Negative values mean our point estimate is lower. The published numbers are rounded to two decimals. No between-model significance test or equivalence claim is made.
+
+The script re-aggregates saved scores; it does not reevaluate prediction masks. The figures summarize existing scores; they are not segmentation overlays. No MRI arrays or prediction masks are included here. Verify actual ED/ES indices and inspect best/worst overlays with the original data before final interpretation. Basal/mid/apical Dice also needs slice-level predictions and verified slice direction.
+
+### Comparison figures
+
+![Measured 2D U-Net Dice results](OUTPUT/UNet2D_2026-11-16_17-16-24/analysis/fig_unet2d_results.png)
+
+The first figure shows our five Dice means on the full 0–1 scale, with numerical mean ± sample SD labels. Every test mouse has equal weight.
+
+![2D U-Net vs published UNet 3+](OUTPUT/UNet2D_2026-11-16_17-16-24/analysis/fig_dice_comparison.png)
+
+The second figure compares measured U-Net scores with the published internal 9.4T benchmark on a labeled 0.75–1.00 detail scale. The right column shows our mean minus the published mean. Error bars show standard deviations, not confidence intervals; small gaps and overlapping bars do not establish equivalence.
 
 ### Expected results
 
-Our run stopped early at epoch 71, and the best model came from epoch 61. Dice is mean ± SD across the same 25 test mice:
+Our run stopped early at epoch 71, and the best model came from epoch 61. Our Dice is mean ± sample SD across 25 test mice; the benchmark column contains published summary values:
 
 | Metric | 2D U-Net (ours, measured) | UNet 3+ (published [1]) |
 |---|---:|---:|
@@ -212,25 +224,24 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Dice i
 | **Overall** | **0.902 ± 0.049** | **0.92 ± 0.02** |
 
 - **Finish line met:** the mean overall Dice of 0.902 reached the ≥ 0.90 target. Individually, 17 of 25 mice reached 0.90.
-- **ED vs. ES:** blood pool Dice was significantly lower at ES than at ED (p = 0.0001). Myocardium Dice did not differ between the two (p = 0.067).
-- **Comparison with UNet 3+:** the two models were nearly equal at ED (differences of 0.01 or less). The 2D U-Net scored lower at ES: 0.03 lower for the blood pool and 0.04 lower for the myocardium.
-- **Best and worst mice:** the best was Mouse100 (overall 0.947), the median was Mouse78 (0.911), and the worst was Mouse91 (0.705, driven by ES Dice of 0.50–0.56). Without Mouse91, overall Dice is 0.910 ± 0.027. The main results include all 25 mice.
+- **Comparison with UNet 3+:** our mean scores were within 0.01 of the published point estimates at ED; this does not establish equivalence. The 2D U-Net scored lower at ES: 0.03 lower for the blood pool and 0.04 lower for the myocardium.
+- **Best and worst mice:** the best was Mouse100 (overall 0.947), the median was Mouse78 (0.911), and the worst was Mouse91 (0.705, driven by ES Dice of 0.50–0.56). The main results include all 25 mice.
 
-**Limitations:** the UNet 3+ scores are published summary values, not our own runs. Without its per-mouse scores, the models can only be compared descriptively, and no paired significance test between them is possible. Apart from the architecture, the models also differ in loss function, learning-rate schedule, and augmentation.
+**Limitations:** the UNet 3+ scores are published summary values, not our own runs. Without its per-mouse scores, the models can only be compared descriptively, and no paired significance test between them is possible. Apart from the architecture, the models also differ in loss function, learning-rate schedule, and augmentation. The uploaded config lists 695 extracted labeled test images; this is not the count of ED/ES slices actually scored, whereas the paper reports 460 ED/ES test images. The EDA lists extra annotated frames for test mice Mouse91 (17 frames) and Mouse125 (11). The paper says extra inflow frames were placed in training. Verify the actual ED/ES selections and final-paper partition before claiming the same experiment. The utility infers ED as the earliest annotated frame and ES using minimum guarded blood-pool volume; the chosen indices were not saved. Post-processing is enabled by default, but its on/off flag is absent from the saved config. Our overall Dice averages four class/phase scores per mouse; the paper's exact overall aggregation is not established. Original mask alignment and phase correctness cannot be verified from the summary CSV alone.
 
-**Note on reproducibility:** all random seeds are fixed (seed 42), and the data split is fully deterministic. However, TensorFlow GPU computations are not perfectly deterministic, so a rerun may stop at a slightly different epoch and give slightly different Dice scores. The overall conclusions should not change.
+**Note on reproducibility:** all random seeds are fixed (seed 42), and the data split is fully deterministic. However, TensorFlow GPU computations are not perfectly deterministic, so a rerun may stop at a slightly different epoch and give slightly different Dice scores. Results near the 0.90 threshold could change on a rerun; the reported target applies to this saved run.
 
 ### Deviations from the MI2 plan
 
 | MI2 plan | What we did | Reason |
 |---|---|---|
-| 70 / 15 / 15 split (91 / 19 / 20 mice) | 90 / 15 / 25 split | Matches the UNet 3+ paper's split exactly, so both models are tested on the same 25 mice |
+| 70 / 15 / 15 split (91 / 19 / 20 mice) | 90 / 15 / 25 split | Matches the released notebook lists; exact identity with the final paper partition is not independently confirmed |
 | Clip intensities to the 1st–99th percentile, then rescale | Per-slice min–max scaling to [0, 1] | Matches the original authors' preprocessing (`utility.py`) |
 | Up to 100 epochs | Up to 300 epochs | Gives early stopping more room; training stopped at epoch 71 |
-| Dice over all of a mouse's labeled slices | Dice over all slices at ED and ES, with island removal | Matches the UNet 3+ paper's evaluation, so the scores are directly comparable |
+| Dice over all of a mouse's labeled slices | Dice over all slices at ED and ES, with island removal | Provides ED/ES class scores for a descriptive comparison; exact protocol equivalence is not established |
 | Limited tuning of learning rate and base filters | No tuning | The first configuration met the 0.90 target |
-| Optional Wilcoxon test against the released UNet 3+ weights | Not performed; compared against published scores instead, and added a within-model ED vs. ES Wilcoxon test | Dropped to keep the project in scope |
-| Train on Google Colab or UVA HPC | Trained on an Linux GPU workstation | A lab GPU was available |
+| Optional Wilcoxon test against the released UNet 3+ weights | Not performed; descriptive comparison against published scores only | Dropped to keep the project in scope |
+| Train on Google Colab or UVA HPC | Trained on a Linux GPU workstation | A lab GPU was available |
 
 ### Troubleshooting
 
@@ -239,3 +250,11 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Dice i
 - **Out of GPU memory:** add `--batch_size 8` to the training command.
 - **GPU 0 is busy:** run `nvidia-smi` to see which GPUs are free, then use `--gpu 1`.
 - **Stopping a running job:** find its process ID with `ps aux | grep train_unet2d.py`, then run `kill <process_id>`.
+
+## References
+
+[1] W. Shah et al., “Open-source pre-clinical image segmentation: mouse cardiac magnetic resonance imaging datasets with a deep learning segmentation framework,” *J. Cardiovasc. Magn. Reson.*, vol. 28, no. 1, Art. no. 102706, 2026, doi: [10.1016/j.jocmr.2026.102706](https://doi.org/10.1016/j.jocmr.2026.102706). [Final paper, Table 1 and Methods](https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/).
+
+[2] mrphys, “Open-Source_Pre-Clinical_Segmentation,” [GitHub repository](https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation). Accessed: Nov. 19, 2026.
+
+[3] O. Ronneberger, P. Fischer, and T. Brox, “U-Net: Convolutional networks for biomedical image segmentation,” in *MICCAI*, 2015, pp. 234–241, doi: 10.1007/978-3-319-24574-4_28.
