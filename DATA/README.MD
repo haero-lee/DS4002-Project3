@@ -19,7 +19,7 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 
 ## Obtaining the Data
 
-The raw dataset (about 5 GB) is too large to store in this repository. It is publicly available from the original authors under the GPL-3.0 license [2].
+The raw dataset (about 3.5 GB) is too large to store in this repository. It is publicly available from the original authors under the GPL-3.0 license [2]. `DATA.txt` in this folder gives a detailed download and verification guide.
 
 **Initial data:** cine short-axis MRI of 130 mice, one HDF5 file per mouse (`Mouse1.h5` to `Mouse130.h5`). To download it, run these commands from the top level of this repository:
 
@@ -29,13 +29,13 @@ mv Open-Source_Pre-Clinical_Segmentation/Data DATA/WBH5Data
 ls DATA/WBH5Data | wc -l     # should print 130
 ```
 
-The scripts expect the data in `DATA/WBH5Data/`. This folder is excluded from Git (see `.gitignore`).
+The scripts expect the data in `DATA/WBH5Data/`. This folder is excluded from Git by the repository's `.gitignore`.
 
-**Final data analyzed:** the analysis dataset is not stored as a separate file. `SCRIPTS/train_unet2d.py` builds it from the raw files each time it runs:
+**Final data analyzed:** the analysis dataset is not stored as a separate file. `SCRIPTS/03_train_unet2d.py` builds it from the raw files each time it runs:
 
 1. Keeps only the timeframes with expert labels (`Frames_with_ROI`): end-diastole, end-systole, and extra inflow frames for some mice.
 2. Splits each labeled frame into 2D 256 × 256 slices, each with its mask (0 = background, 1 = myocardium, 2 = blood pool).
-3. Assigns whole mice to the training, validation, and test sets, following `split_90_15_25.json`.
+3. Assigns whole mice to the training, validation, and test sets (90 / 15 / 25 mice, seed 42).
 
 | Set | Mice | 2D images |
 |---|---:|---:|
@@ -44,16 +44,16 @@ The scripts expect the data in `DATA/WBH5Data/`. This folder is excluded from Gi
 | Test | 25 | 695 |
 | **Total** | **130** | **2,833** |
 
-Files in this folder that define the final dataset:
+Files that define the final dataset:
 
 | File | Contents |
 |---|---|
-| `split_90_15_25.json` | Mouse IDs in the training, validation, and test sets (seed 42; identical to the UNet 3+ paper's split) |
-| `published_unet3plus.csv` | Published UNet 3+ Dice scores used as the benchmark [1] |
+| `../OUTPUT/UNet2D_2026-11-16_17-16-24/split.json` | Mouse IDs actually used in the training, validation, and test sets. These match the authors' released notebook assignments [3]. |
+| `published_unet3plus.csv` | Published UNet 3+ Dice scores used as the benchmark [2] |
 
-**Secondary data:** the per-mouse test Dice scores produced by the trained model, `OUTPUT/UNet2D_<date>_<time>/eval/test_dice_per_mouse.csv`, are the input to `SCRIPTS/analyze_results.py`.
-
-
+**Secondary data:**
+- `OUTPUT/UNet2D_2026-11-16_17-16-24/eval/test_dice_per_mouse.csv`: per-mouse test Dice scores from the trained model. This is the input to `SCRIPTS/05_analyze_results.py`.
+- `OUTPUT/UNet2D_2026-11-16_17-16-24/test_segmentations/test_segmentation_summary.csv`: produced by `SCRIPTS/06_plot_test_segmentations.py` from the raw data and the saved model. It records each test mouse's ED and ES frames, how many slices are labeled in each, and whole-stack Dice. The same script saves a figure per test mouse comparing predicted and expert segmentations.
 
 ## Data Dictionary
 
