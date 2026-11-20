@@ -17,6 +17,42 @@ The Open-Source Pre-Clinical Segmentation GitHub repository is distributed under
 Our project uses existing mouse cardiac MRI data and does not involve new animal experiments or human participant information. We will acknowledge the original researchers’ data collection and animal research oversight. We will report exclusions, preprocessing decisions, and model limitations transparently, and we will not present automated segmentations as substitutes for expert assessment without additional validation. 
 
 
+## Obtaining the Data
+
+The raw dataset (about 5 GB) is too large to store in this repository. It is publicly available from the original authors under the GPL-3.0 license [2].
+
+**Initial data:** cine short-axis MRI of 130 mice, one HDF5 file per mouse (`Mouse1.h5` to `Mouse130.h5`). To download it, run these commands from the top level of this repository:
+
+```bash
+git clone https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation.git
+mv Open-Source_Pre-Clinical_Segmentation/Data DATA/WBH5Data
+ls DATA/WBH5Data | wc -l     # should print 130
+```
+
+The scripts expect the data in `DATA/WBH5Data/`. This folder is excluded from Git (see `.gitignore`).
+
+**Final data analyzed:** the analysis dataset is not stored as a separate file. `SCRIPTS/train_unet2d.py` builds it from the raw files each time it runs:
+
+1. Keeps only the timeframes with expert labels (`Frames_with_ROI`): end-diastole, end-systole, and extra inflow frames for some mice.
+2. Splits each labeled frame into 2D 256 × 256 slices, each with its mask (0 = background, 1 = myocardium, 2 = blood pool).
+3. Assigns whole mice to the training, validation, and test sets, following `split_90_15_25.json`.
+
+| Set | Mice | 2D images |
+|---|---:|---:|
+| Training | 90 | 1,858 |
+| Validation | 15 | 280 |
+| Test | 25 | 695 |
+| **Total** | **130** | **2,833** |
+
+Files in this folder that define the final dataset:
+
+| File | Contents |
+|---|---|
+| `split_90_15_25.json` | Mouse IDs in the training, validation, and test sets (seed 42; identical to the UNet 3+ paper's split) |
+| `published_unet3plus.csv` | Published UNet 3+ Dice scores used as the benchmark [1] |
+
+**Secondary data:** the per-mouse test Dice scores produced by the trained model, `OUTPUT/UNet2D_<date>_<time>/eval/test_dice_per_mouse.csv`, are the input to `SCRIPTS/analyze_results.py`.
+
 
 
 ## Data Dictionary
