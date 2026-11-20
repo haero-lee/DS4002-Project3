@@ -38,36 +38,52 @@ pip install "tensorflow[and-cuda]" h5py numpy albumentations opencv-python sciki
 DS4002-Project3/
 ├── README.md
 ├── LICENSE
-├── .gitignore                            Keeps the downloaded MRI data out of Git
+├── .gitignore                              Keeps the downloaded MRI data out of Git
 ├── DATA/
-│   ├── README.MD                         Data provenance and dictionary
-│   ├── DATA.txt                          Dataset acquisition guide
-│   └── published_unet3plus.csv           Published Table 1 benchmark
+│   ├── README.MD                           Data provenance and dictionary
+│   ├── DATA.txt                            Dataset acquisition guide
+│   └── published_unet3plus.csv             Published Table 1 benchmark
 ├── SCRIPTS/
-│   ├── 01_EDA_py_documented.ipynb        Exploratory data analysis
-│   ├── 02_utility.py                     Data loading and ED/ES evaluation
-│   ├── 03_train_unet2d.py                Training and mask-level evaluation
-│   ├── 04_unet2d_utils.py                Model, training metrics, and split
-│   ├── 05_analyze_results.py             Comparison from saved per-mouse scores
-│   └── 06_plot_test_segmentations.py     Predicted vs. expert segmentation figures for all test mice
+│   ├── 01_EDA_py_documented.ipynb          Exploratory data analysis
+│   ├── 02_utility.py                       Data loading and ED/ES evaluation
+│   ├── 03_train_unet2d.py                  Training and mask-level evaluation
+│   ├── 04_unet2d_utils.py                  Model, training metrics, and split
+│   ├── 05_analyze_results.py               Comparison from saved per-mouse scores
+│   └── 06_plot_test_segmentations.py       Predicted vs. expert segmentation figures for all test mice
 └── OUTPUT/
-    ├── eda_outputs/                      Exploratory figures and tables
+    ├── eda_outputs/                        Exploratory figures and tables
+    │   ├── 01_data_sample.png
+    │   ├── 02_mouse_image_quality.csv
+    │   ├── 03_mouse_morphology.csv
+    │   ├── 04_slice_features.csv
+    │   ├── 05_step3a_flagged_masks.png
+    │   ├── 06_step3a_flagged_slices.csv
+    │   ├── 07_step3b_base_to_apex_profiles.png
+    │   ├── 08_myocardium_plot.png
+    │   ├── 09_step3b_ef_size_thickness_hists.png
+    │   ├── 10_step3b_heart_location_heatmap.png
+    │   ├── 11_step3c_image_quality_pca.png
+    │   ├── 12_step3c_quality_outliers.csv
+    │   ├── 13_step4_correlations.csv
+    │   ├── 14_step8_labeled_counts.csv
+    │   ├── 15_step9_area_histograms.png
+    │   └── 16_step9_areas.csv
     └── UNet2D_2026-11-16_17-16-24/
-        ├── config.json, split.json       Actual run settings and assignments
+        ├── config.json, split.json         Actual run settings and assignments
         ├── training_log.csv, history.json
         ├── best_model.keras, final_model.keras
         ├── loss_plot.png, dice_combined.png
         ├── eval/
-        │   ├── test_dice_per_mouse.csv   Original measured scores
-        │   └── test_summary.txt          Original training summary
+        │   ├── test_dice_per_mouse.csv     Original measured scores
+        │   └── test_summary.txt            Original training summary
         ├── analysis/
-        │   ├── comparison_table.csv      Measured vs published scores and gaps
-        │   ├── analysis_summary.txt      Recomputed statistics and limitations
-        │   ├── analysis_manifest.json    Input/checkpoint hashes and environment
-        │   ├── fig_unet2d_results.png    Measured Dice means and SDs
-        │   └── fig_dice_comparison.png   Measured vs published scores and gaps
+        │   ├── comparison_table.csv        Measured vs published scores and gaps
+        │   ├── analysis_summary.txt        Recomputed statistics and limitations
+        │   ├── analysis_manifest.json      Input/checkpoint hashes and environment
+        │   ├── fig_unet2d_results.png      Measured Dice means and SDs
+        │   └── fig_dice_comparison.png     Measured vs published scores and gaps
         └── test_segmentations/
-            ├── Mouse<N>_ED_ES.png        Magnitude, ground truth, prediction, and overlap at ED and ES (one per test mouse)
+            ├── Mouse<N>_ED_ES.png          Magnitude, ground truth, prediction, and overlap at ED and ES (one per test mouse)
             └── test_segmentation_summary.csv   ED/ES frames, labeled-slice counts, and whole-stack Dice per test mouse
 ```
 
