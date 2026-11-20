@@ -30,7 +30,7 @@ pip install "tensorflow[and-cuda]" h5py numpy albumentations opencv-python sciki
 
 **Platform**
 - Model training and evaluation: Linux workstation with an NVIDIA GPU (Epstein Lab, UVA)
-- Exploratory data analysis: Windows with Python 3.12 and Google Colab
+- Exploratory data analysis: Mac with Python 3.12 and Google Colab
 
 ## Section 2: A Map of Our Documentation
 
