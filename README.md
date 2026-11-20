@@ -38,16 +38,18 @@ pip install "tensorflow[and-cuda]" h5py numpy albumentations opencv-python sciki
 DS4002-Project3/
 ├── README.md
 ├── LICENSE
+├── .gitignore                            Keeps the downloaded MRI data out of Git
 ├── DATA/
 │   ├── README.MD                         Data provenance and dictionary
 │   ├── DATA.txt                          Dataset acquisition guide
 │   └── published_unet3plus.csv           Published Table 1 benchmark
 ├── SCRIPTS/
-│   ├── 01_EDA_py_documented.ipynb           Exploratory data analysis
-│   ├── 03_train_unet2d.py                   Training and mask-level evaluation
-│   ├── 04_unet2d_utils.py                   Model, training metrics, and split
-│   ├── 02_utility.py                        Data loading and ED/ES evaluation
-│   └── 05_analyze_results.py               Comparison from saved per-mouse scores
+│   ├── 01_EDA_py_documented.ipynb        Exploratory data analysis
+│   ├── 02_utility.py                     Data loading and ED/ES evaluation
+│   ├── 03_train_unet2d.py                Training and mask-level evaluation
+│   ├── 04_unet2d_utils.py                Model, training metrics, and split
+│   ├── 05_analyze_results.py             Comparison from saved per-mouse scores
+│   └── 06_plot_test_segmentations.py     Predicted vs. expert segmentation figures for all test mice
 └── OUTPUT/
     ├── eda_outputs/                      Exploratory figures and tables
     └── UNet2D_2026-11-16_17-16-24/
@@ -58,19 +60,22 @@ DS4002-Project3/
         ├── eval/
         │   ├── test_dice_per_mouse.csv   Original measured scores
         │   └── test_summary.txt          Original training summary
-        └── analysis/
-            ├── comparison_table.csv     Measured vs published scores and gaps
-            ├── analysis_summary.txt     Recomputed statistics and limitations
-            ├── analysis_manifest.json   Input/checkpoint hashes and environment
-            ├── fig_unet2d_results.png    Measured Dice means and SDs
-            └── fig_dice_comparison.png   Measured vs published scores and gaps
+        ├── analysis/
+        │   ├── comparison_table.csv      Measured vs published scores and gaps
+        │   ├── analysis_summary.txt      Recomputed statistics and limitations
+        │   ├── analysis_manifest.json    Input/checkpoint hashes and environment
+        │   ├── fig_unet2d_results.png    Measured Dice means and SDs
+        │   └── fig_dice_comparison.png   Measured vs published scores and gaps
+        └── test_segmentations/
+            ├── Mouse<N>_ED_ES.png        Magnitude, ground truth, prediction, and overlap at ED and ES (one per test mouse)
+            └── test_segmentation_summary.csv   ED/ES frames, labeled-slice counts, and whole-stack Dice per test mouse
 ```
 
-The MRI dataset is not included. Both uploaded `.keras` model files are present in the run folder. The comparison step produces a CSV, written explanation, and two figures from saved scores and metadata; it does not need TensorFlow, a GPU, or another MRI download.
+The MRI dataset is not included. Both uploaded `.keras` model files are present in the run folder. The comparison step (`05_analyze_results.py`) produces a CSV, written explanation, and two figures from saved scores and metadata; it does not need TensorFlow, a GPU, or the MRI download. The segmentation figures (`06_plot_test_segmentations.py`) apply the saved model to the test mice, so they need TensorFlow and the MRI data.
 
 ## Section 3: Instructions for Reproducing Our Results
 
-To compare the existing results, go directly to Step 7; do not retrain or download the MRI data. Steps 1–6 describe training reproduction. Every command is run in a terminal.
+To compare the existing results, go directly to Step 7; do not retrain or download the MRI data. To view the model's segmentations without retraining, download the data (Steps 2–3) and go to Step 8. Steps 1–6 describe training reproduction. Every command is run in a terminal.
 
 | Pipeline stage | Where it happens |
 |---|---|
@@ -78,13 +83,13 @@ To compare the existing results, go directly to Step 7; do not retrain or downlo
 | 2. Data splitting | `03_train_unet2d.py` (Step 5) |
 | 3. Preprocessing and augmentation | `03_train_unet2d.py` (Step 5) |
 | 4. Model training | `03_train_unet2d.py` (Step 5) |
-| 5. Evaluation on test mice | `03_train_unet2d.py` (Step 5) and `05_analyze_results.py` (Step 7) |
+| 5. Evaluation on test mice | `03_train_unet2d.py` (Step 5), `05_analyze_results.py` (Step 7), and `06_plot_test_segmentations.py` (Step 8) |
 | 6. Benchmark comparison | `05_analyze_results.py` (Step 7) |
 
 ### Requirements
 
 - **Operating system:** Linux is recommended (we used a Linux lab workstation). macOS or Windows (through WSL2) can run the code, but training without an NVIDIA GPU is very slow.
-- **Hardware:** an NVIDIA GPU is strongly recommended. Training took a few hours on our lab GPU. Step 7 can run on any computer.
+- **Hardware:** an NVIDIA GPU is strongly recommended for training, which took a few hours on our lab GPU. Step 7 can run on any computer. Step 8 runs on a CPU in several minutes, or faster on a GPU.
 - **Disk space:** about 6 GB.
 - **Software:** [Anaconda or Miniconda](https://docs.conda.io/en/latest/miniconda.html) and Git.
 
@@ -197,7 +202,26 @@ This script reads the original score CSV, split, config, and published benchmark
 
 The CSV's difference is **our mean minus the published mean**, in Dice units. Negative values mean our point estimate is lower. The published numbers are rounded to two decimals. No between-model significance test or equivalence claim is made.
 
-The script re-aggregates saved scores; it does not reevaluate prediction masks. The figures summarize existing scores; they are not segmentation overlays. No MRI arrays or prediction masks are included here. Verify actual ED/ES indices and inspect best/worst overlays with the original data before final interpretation. Basal/mid/apical Dice also needs slice-level predictions and verified slice direction.
+This script re-aggregates saved scores; it does not reevaluate prediction masks. The figures summarize existing scores; they are not segmentation overlays. To see the model's actual segmentations and the ED/ES frames used for each mouse, run Step 8.
+
+### Step 8: Plot predicted vs. expert segmentations for every test mouse
+
+This step applies the saved model (`best_model.keras`) to the 25 test mice and does not retrain anything. It needs the MRI data in `DATA/WBH5Data` (Step 2) and the packages from Step 3. From the repository root:
+
+```bash
+python SCRIPTS/06_plot_test_segmentations.py
+```
+
+The script is self-contained: the 25 test mice and the helper functions it needs are written into it, and its paths already point to the reported run and `DATA/WBH5Data`. If your files are somewhere else, edit the `CONFIGURATION` block at the top of the script. Set `GPU = "0"` there to use a GPU.
+
+For each test mouse, it uses the same preprocessing, ED/ES selection, and island removal as the Step 5 evaluation. It predicts every slice of the ED and ES frames, then saves to `OUTPUT/UNet2D_2026-11-16_17-16-24/test_segmentations/`:
+
+| File | Contents |
+|---|---|
+| `Mouse<N>_ED_ES.png` | One figure per test mouse. Rows are ED and ES at the mid-ventricular slice (the slice with the largest expert blood pool). Panels are magnitude, ground truth, prediction, and overlap. In the ground-truth and prediction panels, yellow = myocardium and green = blood pool. In the overlap panel, purple = ground truth and prediction agree, red = labeled in the ground truth but missed or given the other label, and blue = predicted where the ground truth is background. |
+| `test_segmentation_summary.csv` | For each test mouse: the ED and ES frame numbers, how many slices are labeled in each, whole-stack Dice for each structure and phase, and a `partly_labeled_ES` flag |
+
+**Check:** the whole-stack Dice values in `test_segmentation_summary.csv` should match `eval/test_dice_per_mouse.csv`. If they match, the figures show exactly what was scored.
 
 ### Comparison figures
 
@@ -224,8 +248,9 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 - **Finish line met:** the mean overall Dice of 0.902 reached the ≥ 0.90 target. Individually, 17 of 25 mice reached 0.90.
 - **Comparison with UNet 3+:** our mean scores were within 0.01 of the published point estimates at ED; this does not establish equivalence. The 2D U-Net scored lower at ES: 0.03 lower for the blood pool and 0.04 lower for the myocardium.
 - **Best and worst mice:** the best was Mouse100 (overall 0.947), the median was Mouse78 (0.911), and the worst was Mouse91 (0.705, driven by ES Dice of 0.50–0.56). The main results include all 25 mice.
+- **Partly labeled ES frames:** two test mice have extra annotated frames. For each, the ES rule selects a frame that is labeled on fewer slices than its ED frame: frame 19 of Mouse91 is labeled on 2 of 10 slices (ED: 7), and frame 11 of Mouse125 on 5 of 9 (ED: 9). On those slices, any prediction counts against Dice, even if it is correct. This likely lowers both mice's ES scores, which are among the lowest in the test set. The `partly_labeled_ES` column and the Step 8 figures show this for each mouse. The reported results still include these mice unchanged.
 
-**Limitations:** the UNet 3+ scores are published summary values, not our own runs. Without its per-mouse scores, the models can only be compared descriptively, and no paired significance test between them is possible. Apart from the architecture, the models also differ in loss function, learning-rate schedule, and augmentation. The uploaded config lists 695 extracted labeled test images; this is not the count of ED/ES slices actually scored, whereas the paper reports 460 ED/ES test images. The EDA lists extra annotated frames for test mice Mouse91 (17 frames) and Mouse125 (11). The paper says extra inflow frames were placed in training. Verify the actual ED/ES selections and final-paper partition before claiming the same experiment. The utility infers ED as the earliest annotated frame and ES using minimum guarded blood-pool volume; the chosen indices were not saved. Post-processing is enabled by default, but its on/off flag is absent from the saved config. Our overall Dice averages four class/phase scores per mouse; the paper's exact overall aggregation is not established. Original mask alignment and phase correctness cannot be verified from the summary CSV alone.
+**Limitations:** the UNet 3+ scores are published summary values, not our own runs. Without its per-mouse scores, the models can only be compared descriptively, and no paired significance test between them is possible. Apart from the architecture, the models also differ in loss function, learning-rate schedule, and augmentation. The uploaded config lists 695 extracted labeled test images; this is not the count of ED/ES slices actually scored, whereas the paper reports 460 ED/ES test images. The EDA lists extra annotated frames for test mice Mouse91 (17 frames) and Mouse125 (11). The paper says extra inflow frames were placed in training. Verify the final-paper partition before claiming the same experiment. The utility infers ED as the earliest annotated frame and ES using minimum guarded blood-pool volume. Training did not save the chosen frames, but Step 8 records them in `test_segmentation_summary.csv`. Post-processing is enabled by default, but its on/off flag is absent from the saved config. Our overall Dice averages four class/phase scores per mouse; the paper's exact overall aggregation is not established.
 
 **Note on reproducibility:** all random seeds are fixed (seed 42), and the data split is fully deterministic. However, TensorFlow GPU computations are not perfectly deterministic, so a rerun may stop at a slightly different epoch and give slightly different Dice scores. Results near the 0.90 threshold could change on a rerun; the reported target applies to this saved run.
 
@@ -237,6 +262,7 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 | Clip intensities to the 1st–99th percentile, then rescale | Per-slice min–max scaling to [0, 1] | Matches the original authors' preprocessing (`02_utility.py`) |
 | Up to 100 epochs | Up to 300 epochs | Gives early stopping more room; training stopped at epoch 71 |
 | Dice over all of a mouse's labeled slices | Dice over all slices at ED and ES, with island removal | Provides ED/ES class scores for a descriptive comparison; exact protocol equivalence is not established |
+| Overlay images of the best and worst cases | Overlay figures for all 25 test mice at ED and ES (Step 8) | Covers the best and worst cases and makes every test mouse inspectable |
 | Limited tuning of learning rate and base filters | No tuning | The first configuration met the 0.90 target |
 | Optional Wilcoxon test against the released UNet 3+ weights | Not performed; descriptive comparison against published scores only | Dropped to keep the project in scope |
 | Train on Google Colab or UVA HPC | Trained on a Linux GPU workstation | A lab GPU was available |
@@ -244,11 +270,10 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 ### Troubleshooting
 
 - **`ModuleNotFoundError`:** activate the environment (`conda activate ml_env`) and rerun the `pip install` command from Step 3.
-- **`FileNotFoundError`, or 0 mice loaded:** check that the data is in `DATA/WBH5Data` and that you are running commands from inside `SCRIPTS`.
+- **`FileNotFoundError`, or 0 mice loaded:** check that the data is in `DATA/WBH5Data`. Run Steps 4–5 from inside `SCRIPTS`, and Steps 7–8 from the repository root.
 - **Out of GPU memory:** add `--batch_size 8` to the training command.
-- **GPU 0 is busy:** run `nvidia-smi` to see which GPUs are free, then use `--gpu 1`.
+- **GPU 0 is busy:** run `nvidia-smi` to see which GPUs are free, then use `--gpu 1` (or set `GPU = "1"` in `06_plot_test_segmentations.py`).
 - **Stopping a running job:** find its process ID with `ps aux | grep 03_train_unet2d.py`, then run `kill <process_id>`.
-
 ## References
 
 [1] W. Shah et al., “Open-source pre-clinical image segmentation: mouse cardiac magnetic resonance imaging datasets with a deep learning segmentation framework,” *J. Cardiovasc. Magn. Reson.*, vol. 28, no. 1, Art. no. 102706, 2026, doi: [10.1016/j.jocmr.2026.102706](https://doi.org/10.1016/j.jocmr.2026.102706). [Final paper, Table 1 and Methods](https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/).
