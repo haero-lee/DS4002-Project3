@@ -128,7 +128,7 @@ The reported model's actual train/validation/test split is saved in OUTPUT/UNet2
 
 To regenerate the comparison from the already uploaded test scores, run from the repository root:
 
-    python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
+    python SCRIPTS/05_analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
 
 This comparison does not require downloading MRI data. Matplotlib is needed for its two figures; add --no-figures for CSV/text outputs using only Python's standard library.
 

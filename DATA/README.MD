@@ -33,18 +33,18 @@ Our project uses existing mouse cardiac MRI data and does not involve new animal
 
 ## Exploratory Plots
 
-![EDA Output](../OUTPUT/eda_outputs/data_sample.png)
+![EDA Output](../OUTPUT/eda_outputs/01_data_sample.png)
 
 Figure 1. Above is a sample image of a mouse left ventricle in which the yellow section represents the blood pool mass and the red section depicts the myocardium mass. 
 
 
-![Heart Location Heatmap](../OUTPUT/eda_outputs/step3b_heart_location_heatmap.png)
+![Heart Location Heatmap](../OUTPUT/eda_outputs/10_step3b_heart_location_heatmap.png)
 
 Figure 2. This figure shows the different places where the heart sits in each image. The frame for the images is 256 x 256. This plot helps us get an understanding of what we can expect from our dataset. 
 
 
 
-![Myocardium Plot](../OUTPUT/eda_outputs/myocardium_plot.png)
+![Myocardium Plot](../OUTPUT/eda_outputs/08_myocardium_plot.png)
 
 Figure 3. The figure outlines the mean left ventricular myocardium area by short-axis slice index for end-diastole (blue, solid) and end-systole (orange, dashed) across 130 mice. Error bars show ±1 SD. Area peaks at mid-ventricular slices or index 4 and falls toward both ends, with large between-mouse variability at every slice.
 
@@ -65,7 +65,7 @@ Figure 3. The figure outlines the mean left ventricular myocardium area by short
 
 [7] O. Bernard et al., “Deep learning techniques for automatic MRI cardiac multi-structures segmentation and diagnosis: Is the problem solved?,” IEEE Trans. Med. Imaging, vol. 37, no. 11, pp. 2514–2525, Nov. 2018, doi: 10.1109/TMI.2018.2837502.
 
-[8] H. Aytoda, “EDA_py.ipynb,” GitHub, 2026. [Online]. Available: https://github.com/haero-lee/DS4002-Project3/blob/main/DATA/EDA_py.ipynb. [Accessed: Nov. 11, 2026].
+[8] H. Aytoda, “EDA_py.ipynb,” GitHub, 2026. [Online]. Available: https://github.com/haero-lee/DS4002-Project3/blob/main/SCRIPTS/01_EDA_py_documented.ipynb. [Accessed: Nov. 11, 2026].
 
 [9] The HDF Group, “Introduction to HDF5,” The HDF5 Field Guide. Accessed: Nov. 9, 2026. [Online]. Available: https://support.hdfgroup.org/documentation/hdf5/latest/_intro_h_d_f5.html
 
@@ -75,4 +75,4 @@ Figure 3. The figure outlines the mean left ventricular myocardium area by short
 
 `result_origin=published_not_reproduced` distinguishes these values from future results measured by this project. Dice values are on the 0–1 scale. ED means end-diastole; ES means end-systole. The paper used a 90/15/25 split, evaluated internal test mice at ED/ES, and applied connected-component post-processing. Its overall Dice should not automatically be treated as identical to our planned mouse-level aggregation.
 
-The completed run uses the split saved in `../OUTPUT/UNet2D_2026-11-16_17-16-24/split.json`. Measured per-mouse scores are in that run’s `eval/test_dice_per_mouse.csv`; the generated comparison and limitations are in `analysis/`. Run `python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24` from the repository root to regenerate the comparison. This re-aggregates existing scores rather than recomputing Dice from masks. It averages four class/phase scores per mouse (ED/ES × myocardium/blood pool), then gives all 25 mice equal weight. See the top-level README for protocol limitations; the comparison remains descriptive.
+The completed run uses the split saved in `../OUTPUT/UNet2D_2026-11-16_17-16-24/split.json`. Measured per-mouse scores are in that run’s `eval/test_dice_per_mouse.csv`; the generated comparison and limitations are in `analysis/`. Run `python SCRIPTS/05_analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24` from the repository root to regenerate the comparison. This re-aggregates existing scores rather than recomputing Dice from masks. It averages four class/phase scores per mouse (ED/ES × myocardium/blood pool), then gives all 25 mice equal weight. See the top-level README for protocol limitations; the comparison remains descriptive.

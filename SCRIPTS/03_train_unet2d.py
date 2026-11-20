@@ -152,8 +152,10 @@ import numpy as np                                  # array handling
 import tensorflow as tf                             # model training
 from tensorflow.keras.utils import to_categorical   # turns label maps into one-hot form
 
-import utility as U        # researchers' helpers (loading, augmentation, evaluation)
-import unet2d_utils as UU  # our helpers (model, loss, metrics, split)
+from importlib import import_module
+# Numbered filenames must be loaded through importlib, not import statements.
+U = import_module('02_utility')
+UU = import_module('04_unet2d_utils')
 
 
 def main():

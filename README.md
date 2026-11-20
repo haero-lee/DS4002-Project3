@@ -43,15 +43,13 @@ DS4002-Project3/
 │   ├── DATA.txt                          Dataset acquisition guide
 │   └── published_unet3plus.csv           Published Table 1 benchmark
 ├── SCRIPTS/
-│   ├── EDA_py_documented.ipynb           Exploratory data analysis
-│   ├── train_unet2d.py                   Training and mask-level evaluation
-│   ├── unet2d_utils.py                   Model, training metrics, and split
-│   ├── utility.py                        Data loading and ED/ES evaluation
-│   └── analyze_results.py               Comparison from saved per-mouse scores
+│   ├── 01_EDA_py_documented.ipynb           Exploratory data analysis
+│   ├── 03_train_unet2d.py                   Training and mask-level evaluation
+│   ├── 04_unet2d_utils.py                   Model, training metrics, and split
+│   ├── 02_utility.py                        Data loading and ED/ES evaluation
+│   └── 05_analyze_results.py               Comparison from saved per-mouse scores
 └── OUTPUT/
     ├── eda_outputs/                      Exploratory figures and tables
-    ├── step9_area_histograms.png
-    ├── step9_areas.csv
     └── UNet2D_2026-11-16_17-16-24/
         ├── config.json, split.json       Actual run settings and assignments
         ├── training_log.csv, history.json
@@ -76,12 +74,12 @@ To compare the existing results, go directly to Step 7; do not retrain or downlo
 
 | Pipeline stage | Where it happens |
 |---|---|
-| 1. Data extraction | `train_unet2d.py` (Step 5 below) |
-| 2. Data splitting | `train_unet2d.py` (Step 5) |
-| 3. Preprocessing and augmentation | `train_unet2d.py` (Step 5) |
-| 4. Model training | `train_unet2d.py` (Step 5) |
-| 5. Evaluation on test mice | `train_unet2d.py` (Step 5) and `analyze_results.py` (Step 7) |
-| 6. Benchmark comparison | `analyze_results.py` (Step 7) |
+| 1. Data extraction | `03_train_unet2d.py` (Step 5 below) |
+| 2. Data splitting | `03_train_unet2d.py` (Step 5) |
+| 3. Preprocessing and augmentation | `03_train_unet2d.py` (Step 5) |
+| 4. Model training | `03_train_unet2d.py` (Step 5) |
+| 5. Evaluation on test mice | `03_train_unet2d.py` (Step 5) and `05_analyze_results.py` (Step 7) |
+| 6. Benchmark comparison | `05_analyze_results.py` (Step 7) |
 
 ### Requirements
 
@@ -129,7 +127,7 @@ Move into `SCRIPTS` and train for one epoch to confirm everything works. This ta
 
 ```bash
 cd SCRIPTS
-python train_unet2d.py --gpu 0 --epochs 1 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT/test_run
+python 03_train_unet2d.py --gpu 0 --epochs 1 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT/test_run
 ```
 
 Check that the output includes `Split matches the UNet 3+ paper split: YES` and `Number of training mice: 90`, `validation mice: 15`, `test mice: 25`, followed by Dice scores for 25 test mice. These scores are not meaningful. Delete `OUTPUT/test_run` afterwards.
@@ -139,7 +137,7 @@ Check that the output includes `Split matches the UNet 3+ paper split: YES` and 
 Still in `SCRIPTS`, run the full training. `nohup` and the `&` at the end keep it running in the background after you close the terminal.
 
 ```bash
-nohup python train_unet2d.py --gpu 0 --epochs 300 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT > train_unet2d.log 2>&1 &
+nohup python 03_train_unet2d.py --gpu 0 --epochs 300 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT > train_unet2d.log 2>&1 &
 ```
 
 To check progress (press `Ctrl+C` to stop watching; training continues):
@@ -190,7 +188,7 @@ From the repository root:
 
 ```bash
 python -m pip install matplotlib
-python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
+python SCRIPTS/05_analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
 ```
 
 Or, from inside `SCRIPTS`, use `--run_dir ../OUTPUT/UNet2D_2026-11-16_17-16-24`.
@@ -236,7 +234,7 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 | MI2 plan | What we did | Reason |
 |---|---|---|
 | 70 / 15 / 15 split (91 / 19 / 20 mice) | 90 / 15 / 25 split | Matches the released notebook lists; exact identity with the final paper partition is not independently confirmed |
-| Clip intensities to the 1st–99th percentile, then rescale | Per-slice min–max scaling to [0, 1] | Matches the original authors' preprocessing (`utility.py`) |
+| Clip intensities to the 1st–99th percentile, then rescale | Per-slice min–max scaling to [0, 1] | Matches the original authors' preprocessing (`02_utility.py`) |
 | Up to 100 epochs | Up to 300 epochs | Gives early stopping more room; training stopped at epoch 71 |
 | Dice over all of a mouse's labeled slices | Dice over all slices at ED and ES, with island removal | Provides ED/ES class scores for a descriptive comparison; exact protocol equivalence is not established |
 | Limited tuning of learning rate and base filters | No tuning | The first configuration met the 0.90 target |
@@ -249,7 +247,7 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 - **`FileNotFoundError`, or 0 mice loaded:** check that the data is in `DATA/WBH5Data` and that you are running commands from inside `SCRIPTS`.
 - **Out of GPU memory:** add `--batch_size 8` to the training command.
 - **GPU 0 is busy:** run `nvidia-smi` to see which GPUs are free, then use `--gpu 1`.
-- **Stopping a running job:** find its process ID with `ps aux | grep train_unet2d.py`, then run `kill <process_id>`.
+- **Stopping a running job:** find its process ID with `ps aux | grep 03_train_unet2d.py`, then run `kill <process_id>`.
 
 ## References
 

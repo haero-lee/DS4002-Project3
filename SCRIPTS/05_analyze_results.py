@@ -3,7 +3,7 @@
 This analysis reads the existing per-mouse CSV, split, config, and published
 benchmark. It does not train, run inference, or recalculate Dice from masks.
 Run from the repository root:
-    python SCRIPTS/analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
+    python SCRIPTS/05_analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24
 
 Requires Python 3.9+ and matplotlib for the two figures. Use --no-figures for
 CSV/text outputs with the standard library only. Outputs go into the run's
@@ -113,7 +113,7 @@ def build_comparison(rows, published):
 def audit_context(run_dir, rows, split, config):
     """Inspect saved context without loading model weights or MRI arrays."""
     notes = []
-    counts_path = ROOT / 'OUTPUT/eda_outputs/step8_labeled_counts.csv'
+    counts_path = ROOT / 'OUTPUT/eda_outputs/14_step8_labeled_counts.csv'
     if counts_path.exists():
         extras = [(r['file'], int(r['labeled_frames'])) for r in read_csv(counts_path)
                   if r['file'].removesuffix('.h5') in split['test']
@@ -269,9 +269,9 @@ def main():
 
     inputs = [run_dir/'eval/test_dice_per_mouse.csv', run_dir/'split.json',
               run_dir/'config.json', run_dir/'eval/test_summary.txt',
-              args.benchmark, Path(__file__), ROOT/'SCRIPTS/utility.py',
-              ROOT/'SCRIPTS/train_unet2d.py', ROOT/'SCRIPTS/unet2d_utils.py']
-    counts = ROOT/'OUTPUT/eda_outputs/step8_labeled_counts.csv'
+              args.benchmark, Path(__file__), ROOT/'SCRIPTS/02_utility.py',
+              ROOT/'SCRIPTS/03_train_unet2d.py', ROOT/'SCRIPTS/04_unet2d_utils.py']
+    counts = ROOT/'OUTPUT/eda_outputs/14_step8_labeled_counts.csv'
     if counts.exists():
         inputs.append(counts)
     checkpoint = run_dir/'best_model.keras'
