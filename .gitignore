@@ -1,0 +1,7 @@
+# Downloaded MRI data (about 3.5 GB; see DATA/DATA.txt)
+DATA/WBH5Data/
+Open-Source_Pre-Clinical_Segmentation/
+*.h5
+
+# Mac system files
+.DS_Store
