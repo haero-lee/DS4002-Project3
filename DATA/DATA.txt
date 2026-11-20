@@ -132,6 +132,12 @@ To regenerate the comparison from the already uploaded test scores, run from the
 
 This comparison does not require downloading MRI data. Matplotlib is needed for its two figures; add --no-figures for CSV/text outputs using only Python's standard library.
 
+To view the saved model's segmentations for all 25 test mice (this DOES need the MRI data in DATA/WBH5Data and TensorFlow), run from the repository root:
+
+    python SCRIPTS/06_plot_test_segmentations.py
+
+It saves one figure per test mouse plus test_segmentation_summary.csv to OUTPUT/UNet2D_2026-11-16_17-16-24/test_segmentations/.
+
 ================================================================
 6. CITATION
 ================================================================
