@@ -6,7 +6,7 @@ Our dataset consists of short-axis cine cardiac MRI images and expert segmentati
 
 ## Provenance
 
-The dataset was collected and released by Shah et al. for their study of automated mouse cardiac MRI segmentation [2]. It is publicly distributed through the mrphys/Open-Source_Pre-Clinical_Segmentation GitHub repository, which also provides the U-Net 3+ implementation and trained weights [3]. We will obtain the source files from this repository, record the version used, and preserve each processed image’s mouse identifier, slice index, and timeframe index so our preparation procedure remains traceable and reproducible. 
+The dataset was collected and released by Shah et al. for their study of automated mouse cardiac MRI segmentation [2]. The researchers acquired short-axis cine MRI scans from 130 mice using a 9.4T scanner and created expert manual segmentation masks identifying the left ventricular myocardium and blood pool at end-diastole, end-systole, and selected additional timeframes containing imaging artifacts [2]. It is publicly distributed through the mrphys/Open-Source_Pre-Clinical_Segmentation GitHub repository, which also provides the U-Net 3+ implementation and trained weights [3]. We will obtain the source files from this repository, record the version used, and preserve each processed image’s mouse identifier, slice index, and timeframe index so our preparation procedure remains traceable and reproducible.
 
 ## License
 
