@@ -19,13 +19,13 @@ PURPOSE
 
     It also writes test_segmentation_summary.csv with each test mouse's
     whole-stack Dice at ED and ES (same calculation as the test evaluation in
-    train_unet2d.py) and how many slices are labeled in each frame.
+    03_train_unet2d.py) and how many slices are labeled in each frame.
 
 STANDALONE
     This script needs NO other project files: the few helper functions it uses
     from the original authors' utility.py (image normalisation, ED/ES detection,
     island removal) are copied in below unchanged in behaviour, and the 25 test
-    mice are listed in the script. utility.py is (c) the mrphys authors,
+    mice are listed in the script. The upstream utility.py is (c) the mrphys authors,
     GPL-3.0: https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation
 
 PROJECT CONTEXT
@@ -56,9 +56,9 @@ NOTES
     - The Dice in each Overlap title is for that single slice; the figure title
       gives the whole-stack Dice used in our reported results. These should
       match eval/test_dice_per_mouse.csv from training.
-    - "partly_labeled_ES = True" means the ES frame has fewer labeled slices
-      than ED; the model's (possibly correct) predictions on unlabeled slices
-      then count as errors and lower the ES Dice.
+    - "partly_labeled_ES = True" means fewer slices contain foreground labels
+      at ES than at ED. This is a review flag, not proof of missing annotation;
+      normal anatomy can also produce fewer foreground-containing slices.
 
 AUTHOR / DATE
     Haero Lee (DS 4002, Project 3), November 2026
@@ -77,7 +77,7 @@ GPU = None                                                  # GPU index ("0", "1
 CROP = True                                     # zoom on the LV (False = full 256 x 256)
 ISLAND_REMOVAL = True                           # same clean-up as the test evaluation
 
-# Held-out test mice (90/15/25 split, seed 42; same as the UNet 3+ paper)
+# Held-out test mice (90/15/25, seed 42; released notebook assignments)
 TEST_MICE = ["Mouse6", "Mouse10", "Mouse12", "Mouse15", "Mouse29", "Mouse36", "Mouse46",
              "Mouse49", "Mouse56", "Mouse60", "Mouse65", "Mouse71", "Mouse74", "Mouse75",
              "Mouse78", "Mouse79", "Mouse87", "Mouse89", "Mouse91", "Mouse99", "Mouse100",
@@ -327,13 +327,13 @@ def main():
                          f"blood {fmt(dice(gt == 2, pr == 2))}")
             draw_row(axes[r], norm[s], gt, pr, row_info, dice_info)
 
-        # Flag a partly labeled ES frame (fewer labeled slices than ED)
+        # Flag fewer foreground-containing slices at ES (not proof of missing labels)
         partial = es >= 0 and n_labeled_slices(msk, es) < n_labeled_slices(msk, ed)
         row["partly_labeled_ES"] = partial
         summary.append(row)
 
         # ---- 7. Figure title, legend, spacing, save ------------------------
-        warn = "   [ES frame only partly labeled]" if partial else ""
+        warn = "   [fewer foreground-labeled slices at ES]" if partial else ""
         fig.suptitle(f"{mouse_id}  |  whole-stack Dice   " + "   ".join(title_parts) + warn,
                      fontsize=11, y=0.97)
         fig.legend(handles=[Patch(color=COL_MYO, label="Myocardium"),

@@ -1,13 +1,13 @@
 """
 ===============================================================================
-utility.py
+02_utility.py
 ===============================================================================
 PURPOSE
     Helper functions for loading, preparing, training on, evaluating and
     plotting mouse cine short-axis cardiac MRI for left ventricle (LV)
     segmentation. Labels: 0 = background, 1 = LV myocardium, 2 = LV blood pool.
 
-    This file is imported by train_unet2d.py (and by the researchers' own
+    This file is imported by 03_train_unet2d.py (and by the researchers' own
     notebook). It is NOT meant to be run on its own.
 
 SOURCE AND LICENSE

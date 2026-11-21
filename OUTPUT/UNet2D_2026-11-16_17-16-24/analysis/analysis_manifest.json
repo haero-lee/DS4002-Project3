@@ -1,23 +1,21 @@
 {
-  "repository_head": "f02a8efdfd47d3ea211e1029acfe88e749c813e4",
+  "repository_head": "20c93216df9760decace4f0ab5380f1d427d62f4",
   "source_files_sha256": {
     "OUTPUT/UNet2D_2026-11-16_17-16-24/eval/test_dice_per_mouse.csv": "feb3f04a69d2443198ee408cd83e41da40d75e311019db759a7a2b2a337e1396",
     "OUTPUT/UNet2D_2026-11-16_17-16-24/split.json": "f298292495c061a9a2e3a9a9727cc832344bd257968381f3c5bbc4c1d29412f4",
     "OUTPUT/UNet2D_2026-11-16_17-16-24/config.json": "197d4ee6a1c670065db40718747747fa77668cfaaff0f2a6e6554f69d037b1f9",
     "OUTPUT/UNet2D_2026-11-16_17-16-24/eval/test_summary.txt": "3271b49d1cb0b9b7095a665e641f3ff8a3b77f6b996e2fb0b9856071a9d220ae",
     "DATA/published_unet3plus.csv": "9b257a31691d3130989746cede072bb89d3fba45ecbfb0b838e52b197a662b69",
-    "SCRIPTS/analyze_results.py": "18a3980619c70b564812ae439ad933820306fbaf728efd2b5793a5be813e6223",
-    "SCRIPTS/utility.py": "6b052b0596428d073b95dd8130c0f74ae7a564c586c5d82c32be6ebb273e6753",
-    "SCRIPTS/train_unet2d.py": "cc76928d5ac6a921abcfb3ff42de83afe201942e58babd92e258a9d150b807ff",
-    "SCRIPTS/unet2d_utils.py": "85f77161d466102161ef3f74a7b783bc2bfb3e5db678fd8d7747cd8eecf5efe6",
-    "OUTPUT/eda_outputs/step8_labeled_counts.csv": "b722f87ace3c2f41de4bad148bac32ef9a8f9439fef8d7f95e369ee0e5cf401e",
+    "SCRIPTS/05_analyze_results.py": "8b76d5d3718df6ed010dffc04e61f30166f577dc01f008c480ea81d22a0bd223",
+    "SCRIPTS/02_utility.py": "1d2fb37f9bb2bb6e89f403ec2f5594313f3b925f389d5f9850a23f8323359c8c",
+    "SCRIPTS/03_train_unet2d.py": "86985f68d2c4fbc1ee80c59c77298367942bb83cde56708139997f0e69a396a3",
+    "SCRIPTS/04_unet2d_utils.py": "ef8cae6e547dcf3927f3349b7eeeaf188cbf4bceb7dedc56facbdae53b908186",
+    "OUTPUT/eda_outputs/14_step8_labeled_counts.csv": "b722f87ace3c2f41de4bad148bac32ef9a8f9439fef8d7f95e369ee0e5cf401e",
     "OUTPUT/UNet2D_2026-11-16_17-16-24/best_model.keras": "4c2974a3a6cef8fbc86fe0437b4066739136faf9df0472ac3d384692f0401a83"
   },
-  "python": "3.12.14",
-  "dependencies": {
-    "matplotlib": "3.11.2"
-  },
-  "figures_generated": true,
+  "python": "3.13.7",
+  "dependencies": {},
+  "figures_generated": false,
   "analysis": "Re-aggregation of uploaded scores; no mask-level reevaluation or training",
   "data_source_commit": "Not recorded in uploaded training config",
   "checkpoint_identity": "Uploaded best_model.keras hash; link to original evaluation not independently verified"

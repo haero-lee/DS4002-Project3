@@ -1,4 +1,20 @@
-MIT License
+# Licensing
+
+Original contributions by this project are offered under the MIT license below.
+This does not relicense third-party code or data.
+
+`SCRIPTS/02_utility.py` is derived from the mrphys authors' `utility.py`, and
+`SCRIPTS/06_plot_test_segmentations.py` includes helper functions derived from it.
+That upstream code remains under GNU GPL version 3.0. Its source is
+https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation and the full
+license is preserved in [LICENSE-GPL-3.0.txt](LICENSE-GPL-3.0.txt).
+Keep the upstream attribution and license when redistributing covered code;
+combined distributions remain subject to the applicable GPL terms.
+
+The MRI data are obtained separately from the original authors. See
+[DATA/README.MD](DATA/README.MD) for provenance and licensing context.
+
+## MIT License (original project contributions)
 
 Copyright (c) 2026 haero-lee
 

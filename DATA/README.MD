@@ -2,24 +2,24 @@
 
 ## Data Summary
 
-Our dataset consists of short-axis cine cardiac MRI images and expert segmentation masks from 130 mice. Each mouse has one HDF5 file containing MRI images, corresponding segmentation masks, and an indicator identifying annotated cardiac timeframes [3]. Saved outputs in our EDA notebook report 130 files, image dimensions of 256 x 256 pixels, 8-11 slices per mouse, and 17-36 cardiac timeframes [8]. Each model input will be a two-dimensional MRI slice, and its target mask will identify background, left ventricular myocardium, and blood pool. We will divide the dataset by mouse to prevent correlated images from appearing in the training, validation, and testing subsets.
+Our dataset consists of short-axis cine cardiac MRI images and expert segmentation masks from 130 mice. Each mouse has one HDF5 file containing MRI images, corresponding segmentation masks, and an indicator identifying annotated cardiac timeframes [3]. Saved outputs in our EDA notebook report 130 files, image dimensions of 256 x 256 pixels, 8-11 slices per mouse, and 17-36 cardiac timeframes [8]. Each model input is a two-dimensional MRI slice, and its target mask identifies background, left ventricular myocardium, and blood pool. We divided the dataset by mouse to prevent correlated images from appearing in the training, validation, and testing subsets.
 
 ## Provenance
 
-The dataset was collected and released by Shah et al. for their study of automated mouse cardiac MRI segmentation [2]. The researchers acquired short-axis cine MRI scans from 130 mice using a 9.4T scanner and created expert manual segmentation masks identifying the left ventricular myocardium and blood pool at end-diastole, end-systole, and selected additional timeframes containing imaging artifacts [2]. It is publicly distributed through the mrphys/Open-Source_Pre-Clinical_Segmentation GitHub repository, which also provides the U-Net 3+ implementation and trained weights [3]. We will obtain the source files from this repository, record the version used, and preserve each processed image’s mouse identifier, slice index, and timeframe index so our preparation procedure remains traceable and reproducible.
+The dataset was collected and released by Shah et al. for their study of automated mouse cardiac MRI segmentation [2]. The researchers acquired short-axis cine MRI scans from 130 mice using a 9.4T scanner and created expert manual segmentation masks identifying the left ventricular myocardium and blood pool at end-diastole, end-systole, and selected additional timeframes containing imaging artifacts [2]. It is publicly distributed through the mrphys/Open-Source_Pre-Clinical_Segmentation GitHub repository, which also provides the U-Net 3+ implementation and trained weights [3]. The loading code preserves mouse, slice, and timeframe identifiers. The reported run saves its mouse assignments in `split.json`, but the training dataset source commit was not recorded; exact data-version reproduction cannot be claimed.
 
 ## License
 
-The Open-Source Pre-Clinical Segmentation GitHub repository is distributed under the GNU General Public License version 3.0 (GPL-3.0) [2]. This license permits use, modification, and redistribution of covered materials subject to its terms, including applicable attribution and source-distribution requirements. Our project will use the repository for academic research, acknowledge the original authors, and comply with the applicable licensing conditions. We will confirm whether any separate licensing restrictions apply to the MRI dataset before redistributing its files.
+The Open-Source Pre-Clinical Segmentation GitHub repository is distributed under the GNU General Public License version 3.0 (GPL-3.0) [3]. This license permits use, modification, and redistribution of covered materials subject to its terms, including applicable attribution and source-distribution requirements. This project uses the repository for academic research and acknowledges its authors. Copied utility code and derived helpers retain GPL-3.0 terms; see [our license scope](../LICENSE.md) and [the preserved upstream license](../LICENSE-GPL-3.0.txt). Raw MRI files are not redistributed here; consult the source repository for the terms applying to downloaded materials.
 
 ## Ethical Statements 
 
-Our project uses existing mouse cardiac MRI data and does not involve new animal experiments or human participant information. We will acknowledge the original researchers’ data collection and animal research oversight. We will report exclusions, preprocessing decisions, and model limitations transparently, and we will not present automated segmentations as substitutes for expert assessment without additional validation. 
+Our project uses existing mouse cardiac MRI data and does not involve new animal experiments or human participant information. The original study documents its animal research oversight [2]. Our README records preprocessing, deviations, and model limitations. These automated segmentations have not been validated as substitutes for expert assessment.
 
 
 ## Obtaining the Data
 
-The raw dataset (about 3.5 GB) is too large to store in this repository. It is publicly available from the original authors under the GPL-3.0 license [2]. `DATA.txt` in this folder gives a detailed download and verification guide.
+The raw dataset (about 3.5 GB) is too large to store in this repository. It is publicly available from the original authors under the upstream repository's GPL-3.0 license [3]. `DATA.txt` in this folder gives a detailed download and verification guide.
 
 **Initial data:** cine short-axis MRI of 130 mice, one HDF5 file per mouse (`Mouse1.h5` to `Mouse130.h5`). To download it, run these commands from the top level of this repository:
 
@@ -59,7 +59,7 @@ Files that define the final dataset:
 
 | Feature | Type | Description | Notes |
 | :--- | :--- | :--- | :--- |
-| Images | Float array, `256 × 256 × slices × timeframes` | Bright-field cine SAX image intensities. Each mouse has 8–11 slices and 17–36 timeframes. | Intensities are in arbitrary scanner units that vary between mice, so they must be normalized. |
+| Images | Raw `uint16` array (converted to float for modeling), `256 × 256 × slices × timeframes` | Bright-blood cine SAX image intensities. Each mouse has 8–11 slices and 17–36 timeframes. | Intensities are in arbitrary scanner units that vary between mice, so they must be normalized. |
 | Masks | Integer array, same shape as `Images` | Pixel labels: background (0), LV myocardium (1), LV blood pool (2). | Expert manual tracing, so boundary pixels carry inter-observer uncertainty. This matters most for the thin mouse myocardium, where a 1–2 pixel shift substantially changes Dice. |
 | Frames_with_ROI | Integer index list | Identifies which cardiac timeframes contain expert segmentation. | Unlabeled timeframes contain only zeros in `Masks`. |
 | `mouse_id` (derived) | String | Taken from the `.h5` file name. | Used for splitting only, never as a model input. |
@@ -91,7 +91,7 @@ Figure 3. The figure outlines the mean left ventricular myocardium area by short
 
 [2] W. Shah et al., “Open-source pre-clinical image segmentation: Mouse cardiac magnetic resonance imaging datasets with a deep learning segmentation framework,” J. Cardiovasc. Magn. Reson., vol. 28, no. 1, Art. no. 102706, 2026, doi: 10.1016/j.jocmr.2026.102706.
 
-[3] mrphys, “Open-Source_Pre-Clinical_Segmentation,” GitHub repository. Accessed: Nov. 9, 2026. [Online]. Available: GitHub repository.
+[3] mrphys, “Open-Source_Pre-Clinical_Segmentation,” GitHub repository. Accessed: Nov. 9, 2026. [Online]. Available: https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation.
 
 [4] O. Ronneberger, P. Fischer, and T. Brox, “U-Net: Convolutional networks for biomedical image segmentation,” in Proc. Medical Image Computing and Computer-Assisted Intervention (MICCAI), 2015, pp. 234–241, doi: 10.1007/978-3-319-24574-4_28.
 
@@ -109,6 +109,6 @@ Figure 3. The figure outlines the mean left ventricular myocardium area by short
 
 [published_unet3plus.csv](published_unet3plus.csv) contains five published mean/SD rows from the [final paper, Table 1](https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1), for the internal 9.4T cohort of 25 test mice. These summary scores were transcribed from the paper, not reproduced by this project. The CSV includes the DOI, source URL, table reference, and post-processing description.
 
-`result_origin=published_not_reproduced` distinguishes these values from future results measured by this project. Dice values are on the 0–1 scale. ED means end-diastole; ES means end-systole. The paper used a 90/15/25 split, evaluated internal test mice at ED/ES, and applied connected-component post-processing. Its overall Dice should not automatically be treated as identical to our planned mouse-level aggregation.
+`result_origin=published_not_reproduced` distinguishes these values from the measured results of this project. Dice values are on the 0–1 scale. ED means end-diastole; ES means end-systole. The paper used a 90/15/25 split, evaluated internal test mice at ED/ES, and applied connected-component post-processing. Its overall Dice should not automatically be treated as identical to our mouse-level aggregation.
 
 The completed run uses the split saved in `../OUTPUT/UNet2D_2026-11-16_17-16-24/split.json`. Measured per-mouse scores are in that run’s `eval/test_dice_per_mouse.csv`; the generated comparison and limitations are in `analysis/`. Run `python SCRIPTS/05_analyze_results.py --run_dir OUTPUT/UNet2D_2026-11-16_17-16-24` from the repository root to regenerate the comparison. This re-aggregates existing scores rather than recomputing Dice from masks. It averages four class/phase scores per mouse (ED/ES × myocardium/blood pool), then gives all 25 mice equal weight. See the top-level README for protocol limitations; the comparison remains descriptive.

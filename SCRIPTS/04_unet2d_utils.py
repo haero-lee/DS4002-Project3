@@ -1,6 +1,6 @@
 """
 ===============================================================================
-unet2d_utils.py
+04_unet2d_utils.py
 ===============================================================================
 PURPOSE
     Helper functions for training a plain 2D U-Net to segment the left
@@ -10,15 +10,15 @@ PURPOSE
         - LV blood pool  (label 2)
     Everything else is background (label 0).
 
-    This file is imported by train_unet2d.py. It is NOT meant to be run on its
+    This file is imported by 03_train_unet2d.py. It is NOT meant to be run on its
     own (running it directly does nothing).
 
 PROJECT CONTEXT
     DS 4002 Project 3: comparing a plain 2D U-Net against the published
     UNet 3+ from the mrphys "Open-Source Pre-Clinical Segmentation" repository
     (https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation).
-    To keep the comparison fair, this file reproduces the researchers' data
-    split and is used together with their utility.py for loading data,
+    This file reproduces the released notebook's mouse assignments and is
+    used together with 02_utility.py (derived from the authors' utility.py) for loading data,
     augmentation, and Dice evaluation.
 
 WHAT IS IN THIS FILE
@@ -44,8 +44,8 @@ IMPORTANT NOTES FOR ANYONE USING THIS FILE
     - The split is done by MOUSE, not by image, so slices from one heart never
       appear in two sets (this prevents data leakage).
     - With seed 42 and a 90/15/25 split, split_by_mouse() gives exactly the
-      same mice as the UNet 3+ paper. Changing the seed or the split sizes
-      will break that match.
+      same mice as the released UNet 3+ notebook lists. This does not verify
+      the final paper partition. Changing seed or split sizes changes the split.
 
 AUTHOR / DATE
     Haero Lee (DS 4002, Project 3), November 2026
@@ -101,7 +101,7 @@ def setup_gpu(mixed_precision: bool = False) -> None:
     - Optionally turns on mixed precision (16-bit math), which can speed up
       training on newer GPUs and lower memory use.
 
-    Which GPU is used is chosen in train_unet2d.py with --gpu, which sets
+    Which GPU is used is chosen in 03_train_unet2d.py with --gpu, which sets
     CUDA_VISIBLE_DEVICES before TensorFlow is imported.
     """
     # Ask TensorFlow which GPUs it can see
@@ -176,9 +176,9 @@ def build_unet2d(input_shape: Tuple[int, int, int] = (256, 256, 1),
       - Output: a 1x1 convolution + softmax gives, for every pixel, the
         probability of background / myocardium / blood pool.
 
-    The filter widths (32, 64, 128, 256, 512) match the researchers' UNet 3+,
-    so the comparison is mainly about the skip connections and deep
-    supervision, not about model size.
+    The filter widths are (32, 64, 128, 256, 512). Matching widths alone
+    does not control model size or training conditions; the published
+    benchmark comparison does not isolate an architectural effect.
 
     Returns a Keras Model: input (batch, 256, 256, 1) -> output (batch, 256, 256, 3)
     """
@@ -353,8 +353,8 @@ def split_by_mouse(mouse_ids: List[str], num_train: int = 90, num_val: int = 15,
     This reproduces the researchers' notebook (Pre-Clinical_CMR_Segmentation.ipynb,
     Step 5) exactly: sort the mouse IDs as text, set np.random.seed(42),
     shuffle, then take the first 90 / next 15 / last 25. With seed 42 this
-    gives the SAME split the UNet 3+ was trained and tested on (see
-    PAPER_SPLIT below).
+    matches the released notebook lists (see PAPER_SPLIT below). This
+    does not establish identity with the final paper training partition.
 
     Returns three lists of mouse IDs (train, val, test), each sorted by number.
     """
@@ -378,7 +378,7 @@ def split_by_mouse(mouse_ids: List[str], num_train: int = 90, num_val: int = 15,
             sorted(test, key=_mouse_num))
 
 
-# The researchers' published split (90 / 15 / 25), copied from the output
+# Released notebook split (90 / 15 / 25), copied from the output
 # printed in their notebook. Used only to CHECK that split_by_mouse()
 # reproduced it. Any mouse not listed here is a training mouse.
 PAPER_SPLIT = {
@@ -395,11 +395,11 @@ PAPER_SPLIT = {
 def check_matches_paper(val: List[str], test: List[str]) -> bool:
     """
     Print YES/NO for whether our validation and test mice are exactly the
-    same as the UNet 3+ paper's. If they match, the training mice match too.
+    same as the released notebook lists. This does not verify the final paper split.
     """
     # Compare as sets so the order of the mice doesn't matter
     same = set(val) == set(PAPER_SPLIT["val"]) and set(test) == set(PAPER_SPLIT["test"])
-    print("Split matches the UNet 3+ paper split:", "YES" if same else "NO")
+    print("Split matches the released UNet 3+ notebook split:", "YES" if same else "NO")
     return same
 
 

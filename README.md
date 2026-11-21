@@ -37,7 +37,8 @@ pip install "tensorflow[and-cuda]" h5py numpy albumentations opencv-python sciki
 ```text
 DS4002-Project3/
 ├── README.md
-├── LICENSE
+├── LICENSE.md                             License scope and MIT terms for original contributions
+├── LICENSE-GPL-3.0.txt                     Preserved upstream GPL license
 ├── .gitignore                              Keeps the downloaded MRI data out of Git
 ├── DATA/
 │   ├── README.MD                           Data provenance and dictionary
@@ -151,7 +152,7 @@ cd SCRIPTS
 python 03_train_unet2d.py --gpu 0 --epochs 1 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT/test_run
 ```
 
-Check that the output includes `Split matches the UNet 3+ paper split: YES` and `Number of training mice: 90`, `validation mice: 15`, `test mice: 25`, followed by Dice scores for 25 test mice. These scores are not meaningful. Delete `OUTPUT/test_run` afterwards.
+Check that the output includes `Split matches the released UNet 3+ notebook split: YES` and `Number of training mice: 90`, `validation mice: 15`, `test mice: 25`, followed by Dice scores for 25 test mice. These scores are not meaningful. Delete `OUTPUT/test_run` afterwards.
 
 ### Step 5: Train and evaluate the model
 
@@ -235,7 +236,7 @@ For each test mouse, it uses the same preprocessing, ED/ES selection, and island
 | File | Contents |
 |---|---|
 | `Mouse<N>_ED_ES.png` | One figure per test mouse. Rows are ED and ES at the mid-ventricular slice (the slice with the largest expert blood pool). Panels are magnitude, ground truth, prediction, and overlap. In the ground-truth and prediction panels, yellow = myocardium and green = blood pool. In the overlap panel, purple = ground truth and prediction agree, red = labeled in the ground truth but missed or given the other label, and blue = predicted where the ground truth is background. |
-| `test_segmentation_summary.csv` | For each test mouse: the ED and ES frame numbers, how many slices are labeled in each, whole-stack Dice for each structure and phase, and a `partly_labeled_ES` flag |
+| `test_segmentation_summary.csv` | For each test mouse: the ED and ES frame numbers, how many slices are labeled in each, whole-stack Dice for each structure and phase, and a `partly_labeled_ES` review flag (fewer foreground-containing slices at ES, not proof of missing labels) |
 
 **Check:** the whole-stack Dice values in `test_segmentation_summary.csv` should match `eval/test_dice_per_mouse.csv`. If they match, the figures show exactly what was scored.
 
@@ -264,7 +265,7 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 - **Finish line met:** the mean overall Dice of 0.902 reached the ≥ 0.90 target. Individually, 17 of 25 mice reached 0.90.
 - **Comparison with UNet 3+:** our mean scores were within 0.01 of the published point estimates at ED; this does not establish equivalence. The 2D U-Net scored lower at ES: 0.03 lower for the blood pool and 0.04 lower for the myocardium.
 - **Best and worst mice:** the best was Mouse100 (overall 0.947), the median was Mouse78 (0.911), and the worst was Mouse91 (0.705, driven by ES Dice of 0.50–0.56). The main results include all 25 mice.
-- **Partly labeled ES frames:** two test mice have extra annotated frames. For each, the ES rule selects a frame that is labeled on fewer slices than its ED frame: frame 19 of Mouse91 is labeled on 2 of 10 slices (ED: 7), and frame 11 of Mouse125 on 5 of 9 (ED: 9). On those slices, any prediction counts against Dice, even if it is correct. This likely lowers both mice's ES scores, which are among the lowest in the test set. The `partly_labeled_ES` column and the Step 8 figures show this for each mouse. The reported results still include these mice unchanged.
+- **ES phase-selection review:** Mouse91 and Mouse125 have extra annotated frames. The ES rule selects frame 19 for Mouse91, with foreground labels on 2 of 10 slices (ED: 7), and frame 11 for Mouse125, with foreground labels on 5 of 9 slices (ED: 9). This raises a possible annotation or phase-selection issue, but foreground counts alone cannot distinguish missing annotation from true background. The `partly_labeled_ES` flag also marks Mouse75, Mouse117, and Mouse118; it is a review heuristic, not confirmation of incomplete labels. Uploaded figure titles use the older shorthand "ES frame only partly labeled" for this same flag. If labels are missing, predictions in those regions count against Dice. The cause of the low scores is not established, and all 25 mice remain in the results unchanged.
 
 **Limitations:** the UNet 3+ scores are published summary values, not our own runs. Without its per-mouse scores, the models can only be compared descriptively, and no paired significance test between them is possible. Apart from the architecture, the models also differ in loss function, learning-rate schedule, and augmentation. The uploaded config lists 695 extracted labeled test images; this is not the count of ED/ES slices actually scored, whereas the paper reports 460 ED/ES test images. The EDA lists extra annotated frames for test mice Mouse91 (17 frames) and Mouse125 (11). The paper says extra inflow frames were placed in training. Verify the final-paper partition before claiming the same experiment. The utility infers ED as the earliest annotated frame and ES using minimum guarded blood-pool volume. Training did not save the chosen frames, but Step 8 records them in `test_segmentation_summary.csv`. Post-processing is enabled by default, but its on/off flag is absent from the saved config. Our overall Dice averages four class/phase scores per mouse; the paper's exact overall aggregation is not established.
 
@@ -279,9 +280,39 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 | Up to 100 epochs | Up to 300 epochs | Gives early stopping more room; training stopped at epoch 71 |
 | Dice over all of a mouse's labeled slices | Dice over all slices at ED and ES, with island removal | Provides ED/ES class scores for a descriptive comparison; exact protocol equivalence is not established |
 | Overlay images of the best and worst cases | Overlay figures for all 25 test mice at ED and ES (Step 8) | Covers the best and worst cases and makes every test mouse inspectable |
+| Dice by basal, middle, and apical position | Not completed; reported Dice pools the whole stack at each phase | Saved evaluation CSV contains whole-stack scores only. Position-specific accuracy remains an unanswered MI2 question; EDA area profiles and mid-ventricular overlays do not answer it. |
 | Limited tuning of learning rate and base filters | No tuning | The first configuration met the 0.90 target |
 | Optional Wilcoxon test against the released UNet 3+ weights | Not performed; descriptive comparison against published scores only | Dropped to keep the project in scope |
 | Train on Google Colab or UVA HPC | Trained on a Linux GPU workstation | A lab GPU was available |
+
+### Reproduce the exploratory analysis
+
+Open `SCRIPTS/01_EDA_py_documented.ipynb` in Google Colab using its **Open in Colab** badge, then choose **Runtime → Run all**. The notebook downloads the source dataset, runs the EDA, and downloads `eda_output.zip` in its final cell. It needs `h5py`, `numpy`, `pandas`, `matplotlib`, and `scipy`; install these with `%pip install h5py numpy pandas matplotlib scipy` in Colab if needed. This is a separate data-dependent workflow; it does not train a model.
+
+The notebook expects its clone at `Open-Source_Pre-Clinical_Segmentation/Data` and writes to `output/`, relative to the notebook runtime. A fresh Colab runtime provides this layout. If using the download already moved to `DATA/WBH5Data`, set the notebook's `DATA_DIR` in both setup sections to that folder's absolute path. The final download cell uses `google.colab`; outside Colab, use Jupyter and collect `output/` manually instead.
+
+The submitted EDA files were organized under `OUTPUT/eda_outputs/`. Copy the regenerated files using this map (paths in the left column are inside the notebook's `output/`):
+
+| Notebook output | Submitted filename |
+|---|---|
+| `part2/mouse_image_quality.csv` | `02_mouse_image_quality.csv` |
+| `part2/mouse_morphology.csv` | `03_mouse_morphology.csv` |
+| `part2/slice_features.csv` | `04_slice_features.csv` |
+| `part2/step3a_flagged_masks.png` | `05_step3a_flagged_masks.png` |
+| `part2/step3a_flagged_slices.csv` | `06_step3a_flagged_slices.csv` |
+| `part2/step3b_base_to_apex_profiles.png` | `07_step3b_base_to_apex_profiles.png` |
+| `part2/step3b_ef_size_thickness_hists.png` | `09_step3b_ef_size_thickness_hists.png` |
+| `part2/step3b_heart_location_heatmap.png` | `10_step3b_heart_location_heatmap.png` |
+| `part2/step3c_image_quality_pca.png` | `11_step3c_image_quality_pca.png` |
+| `part2/step3c_quality_outliers.csv` | `12_step3c_quality_outliers.csv` |
+| `part2/step4_correlations.csv` | `13_step4_correlations.csv` |
+| `step8_labeled_counts.csv` | `14_step8_labeled_counts.csv` |
+| `step9_area_histograms.png` | `15_step9_area_histograms.png` |
+| `step9_areas.csv` | `16_step9_areas.csv` |
+
+`01_data_sample.png` and `08_myocardium_plot.png` are presentation excerpts rather than separate notebook exports. The notebook regenerates source views in its flagged-mask figure and the myocardium panel of the base-to-apex figure; the exact original crop procedure was not recorded. Retain `output/run_info.txt` from any new run to identify its environment and dataset revision. The previously submitted EDA outputs lack that record, so a new run cannot establish their original source revision retrospectively.
+
+The notebook's Step 10 split is an earlier exploratory 70/15/15 split. For the reported model, use the saved `OUTPUT/UNet2D_2026-11-16_17-16-24/split.json` instead. The EDA's heart-area profiles describe expert masks, not model accuracy by slice position.
 
 ### Troubleshooting
 
@@ -290,6 +321,10 @@ Our run stopped early at epoch 71, and the best model came from epoch 61. Our Di
 - **Out of GPU memory:** add `--batch_size 8` to the training command.
 - **GPU 0 is busy:** run `nvidia-smi` to see which GPUs are free, then use `--gpu 1` (or set `GPU = "1"` in `06_plot_test_segmentations.py`).
 - **Stopping a running job:** find its process ID with `ps aux | grep 03_train_unet2d.py`, then run `kill <process_id>`.
+## License
+
+See [LICENSE.md](LICENSE.md) for the MIT terms for original contributions and the scope of copied GPL code. The upstream utility code and derived helpers retain GPL-3.0 terms; the full license is included in [LICENSE-GPL-3.0.txt](LICENSE-GPL-3.0.txt).
+
 ## References
 
 [1] W. Shah et al., “Open-source pre-clinical image segmentation: mouse cardiac magnetic resonance imaging datasets with a deep learning segmentation framework,” *J. Cardiovasc. Magn. Reson.*, vol. 28, no. 1, Art. no. 102706, 2026, doi: [10.1016/j.jocmr.2026.102706](https://doi.org/10.1016/j.jocmr.2026.102706). [Final paper, Table 1 and Methods](https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/).

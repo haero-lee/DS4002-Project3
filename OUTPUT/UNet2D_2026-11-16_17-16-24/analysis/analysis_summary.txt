@@ -14,13 +14,13 @@ The U-Net point estimates are lower in all five rows. Gaps are small at ED and l
 Method and limitations:
 - EDA lists additional annotated frames in test mice: Mouse125.h5 (11 frames), Mouse91.h5 (17 frames). This needs phase-selection review; it is not evidence of leakage.
 - Saved config test_n=695 counts extracted labeled 2D inputs, not the number of ED/ES slices actually scored. The paper reports 460 ED/ES test images.
-- The saved split matches the released notebook lists checked in unet2d_utils.py; identity with the final paper training partition is not independently confirmed. The paper says additional inflow frames were placed in training.
-- Uploaded code infers ED as the earliest annotated frame and ES as the remaining frame with minimum guarded blood-pool volume. Actual selected indices were not saved.
+- The saved split matches the released notebook lists checked in 04_unet2d_utils.py; identity with the final paper training partition is not independently confirmed. The paper says additional inflow frames were placed in training.
+- Uploaded code infers ED as the earliest annotated frame and ES as the remaining frame with minimum guarded blood-pool volume. Training did not save the indices; the later test_segmentations/test_segmentation_summary.csv records the frames selected by the same rule (1-based), when that artifact is present.
 - Uploaded evaluation pools all slices separately for each class at ED and ES, then averages the four Dice values per mouse. It does not pool ED and ES pixel counts together. Every mouse receives equal weight; SD here uses ddof=1.
 - The evaluator treats an empty class in both masks as Dice 1 and uses smoothing 1e-6 otherwise. Post-processing is enabled by default in the training script, but the on/off flag is not stored in config.json. Its island-removal code can retain multiple qualifying components; exact equivalence with the paper is not established.
 - No source MRI files or saved prediction masks are present here. This analysis checks score/split consistency, not pixel alignment, phase correctness, or mask-level Dice.
 - Published results are rounded to two decimals and their overall aggregation is not fully specified. Differences are descriptive, not evidence of architectural superiority or equivalence. No between-model significance test is possible from summaries alone.
 
-Remaining work: verify actual ED/ES indices (particularly Mouse91 and Mouse125), confirm post-processing settings, and inspect real best/worst prediction overlays. No overlays or slice-position Dice can be reconstructed from the score CSV.
+Unresolved limitations: selected phases (especially Mouse91 and Mouse125) are inferred rather than independently expert-verified; the original config omits the post-processing flag and dataset revision. Basal/middle/apical Dice promised in MI2 was not completed: the saved score CSV contains whole-stack metrics only. The README records this deviation; EDA area profiles and mid-ventricular overlays do not establish accuracy by slice position.
 
 Published source: https://pmc.ncbi.nlm.nih.gov/articles/PMC13237537/#tbl1

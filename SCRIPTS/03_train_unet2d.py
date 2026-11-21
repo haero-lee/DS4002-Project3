@@ -1,24 +1,25 @@
 """
 ===============================================================================
-train_unet2d.py
+03_train_unet2d.py
 ===============================================================================
 PURPOSE
     Train a plain 2D U-Net to segment the left ventricle (LV) myocardium and
     blood pool in mouse cine short-axis cardiac MRI, then test it on mice the
-    model has never seen. Test scoring uses the SAME per-mouse Dice at
-    end-diastole (ED) and end-systole (ES) that the researchers used for the
-    published UNet 3+, so the two models can be compared directly.
+    model has never seen. Test scoring uses per-mouse Dice at end-diastole
+    (ED) and end-systole (ES), using the released utility code. Comparison
+    with published UNet 3+ summaries is descriptive; protocol equivalence
+    and identity with the final paper partition are not established.
 
 PROJECT CONTEXT
     DS 4002 Project 3: 2D U-Net vs. UNet 3+ for mouse LV segmentation.
     Data and UNet 3+ code: https://github.com/mrphys/Open-Source_Pre-Clinical_Segmentation
     Goal (finish line): mean test Dice >= 0.90.
 
-REQUIRED FILES (all in the same folder)
-    train_unet2d.py   <- this script (run this one)
-    unet2d_utils.py   <- model, loss, metrics, mouse-level split
-    utility.py        <- researchers' helpers (loading, augmentation, Dice evaluation)
-    WBH5Data/         <- folder holding Mouse1.h5 ... Mouse130.h5
+REQUIRED FILES (scripts in SCRIPTS/, commands below run from SCRIPTS/)
+    03_train_unet2d.py   <- this script (run this one)
+    04_unet2d_utils.py   <- model, loss, metrics, mouse-level split
+    02_utility.py        <- researchers' helpers (loading, augmentation, Dice evaluation)
+    ../DATA/WBH5Data/ <- folder holding Mouse1.h5 ... Mouse130.h5
                          (or point to another folder with --data_dir)
 
 DATA
@@ -29,9 +30,9 @@ DATA
     Only labeled timeframes are used for training.
 
 SPLIT
-    90 / 15 / 25 mice (train / validation / test), seed 42. This is identical
-    to the split used for the published UNet 3+, so both models are tested on
-    the same 25 mice. The script prints whether the split matches.
+    90 / 15 / 25 mice (train / validation / test), seed 42. This matches the
+    released notebook assignments. Identity with the final paper partition
+    is not independently confirmed. The script checks the notebook lists.
 
 REQUIREMENTS
     Python 3.9+ (3.11 recommended), an NVIDIA GPU is strongly recommended.
@@ -41,16 +42,16 @@ HOW TO RUN (from a terminal, inside the folder above)
     conda activate ml_env
 
     Quick test (1 epoch, checks everything works):
-        python train_unet2d.py --gpu 0 --epochs 1
+        python 03_train_unet2d.py --gpu 0 --epochs 1 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT/test_run
 
     Full training in the background (keeps running after you log out):
-        nohup python train_unet2d.py --gpu 0 --epochs 300 > train_unet2d.log 2>&1 &
+        nohup python 03_train_unet2d.py --gpu 0 --epochs 300 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT > train_unet2d.log 2>&1 &
 
     Check progress:
         tail -f train_unet2d.log        (Ctrl+C stops watching, not training)
 
     Reuse a saved split instead of regenerating it:
-        python train_unet2d.py --gpu 0 --split_json split_90_15_25.json
+        python 03_train_unet2d.py --gpu 0 --data_dir ../DATA/WBH5Data --out_dir ../OUTPUT --split_json ../OUTPUT/UNet2D_2026-11-16_17-16-24/split.json
 
 COMMAND-LINE OPTIONS (all optional; defaults in brackets)
     --data_dir [WBH5Data]     folder with the .h5 files
@@ -198,11 +199,11 @@ def main():
         # Reuse a split saved earlier
         train_mice, val_mice, test_mice = UU.load_split(args.split_json)
     else:
-        # Make the 90/15/25 split (same as the UNet 3+ paper with seed 42)
+        # Make the 90/15/25 split (released notebook assignments with seed 42)
         train_mice, val_mice, test_mice = UU.split_by_mouse(
             all_mice, num_train=args.num_train, num_val=args.num_val,
             num_test=args.num_test, seed=args.seed)
-    # Print YES/NO for whether the split matches the paper's
+    # Print YES/NO for whether the split matches the released notebook lists
     UU.check_matches_paper(val_mice, test_mice)
     # Save the split inside this run's folder for the record
     UU.save_split(os.path.join(run_dir, "split.json"), train_mice, val_mice, test_mice, args.seed)
@@ -308,7 +309,7 @@ def main():
     # ======================================================================
     # STEP 8: Evaluate on the held-out test mice
     # ======================================================================
-    # Scored exactly like the UNet 3+: for each test mouse, Dice is computed on
+    # Using the released utility: for each test mouse, Dice is computed on
     # the whole stack of short-axis slices at ED and at ES, for myocardium and
     # blood pool separately.
     print("\nEvaluating on held-out test mice (ED/ES per-mouse Dice)...")
@@ -370,7 +371,7 @@ def main():
     print(f"\nDone. Outputs saved in: {run_dir}")
 
 
-# Run main() only when this file is executed directly (python train_unet2d.py),
+# Run main() only when this file is executed directly (python 03_train_unet2d.py),
 # not when it is imported from another script
 if __name__ == "__main__":
     main()

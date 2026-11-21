@@ -198,11 +198,13 @@ def audit_context(run_dir, rows, split, config):
     notes.extend([
         f"Saved config test_n={config['test_n']} counts extracted labeled 2D inputs, "
         'not the number of ED/ES slices actually scored. The paper reports 460 ED/ES test images.',
-        'The saved split matches the released notebook lists checked in unet2d_utils.py; '
+        'The saved split matches the released notebook lists checked in 04_unet2d_utils.py; '
         'identity with the final paper training partition is not independently confirmed. '
         'The paper says additional inflow frames were placed in training.',
         'Uploaded code infers ED as the earliest annotated frame and ES as the remaining '
-        'frame with minimum guarded blood-pool volume. Actual selected indices were not saved.',
+        'frame with minimum guarded blood-pool volume. Training did not save the indices; '
+        'the later test_segmentations/test_segmentation_summary.csv records the frames '
+        'selected by the same rule (1-based), when that artifact is present.',
         'Uploaded evaluation pools all slices separately for each class at ED and ES, '
         'then averages the four Dice values per mouse. It does not pool ED and ES pixel '
         'counts together. Every mouse receives equal weight; SD here uses ddof=1.',
@@ -356,9 +358,12 @@ def main():
         'and larger at ES, especially myocardium. This does not establish statistical '
         'equivalence at ED or a causal effect of model architecture.',
         '', 'Method and limitations:', *['- '+note for note in notes],
-        '', 'Remaining work: verify actual ED/ES indices (particularly Mouse91 and Mouse125), '
-        'confirm post-processing settings, and inspect real best/worst prediction overlays. '
-        'No overlays or slice-position Dice can be reconstructed from the score CSV.',
+        '', 'Unresolved limitations: selected phases (especially Mouse91 and Mouse125) '
+        'are inferred rather than independently expert-verified; the original config omits '
+        'the post-processing flag and dataset revision. Basal/middle/apical Dice promised '
+        'in MI2 was not completed: the saved score CSV contains whole-stack metrics only. '
+        'The README records this deviation; EDA area profiles and mid-ventricular '
+        'overlays do not establish accuracy by slice position.',
         '', 'Published source: '+PAPER_URL,
     ]
     report = '\n'.join(lines)+'\n'
